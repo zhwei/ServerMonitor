@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from bottle import route, run, view, static_file
+from bottle import route, run, static_file
+from bottle import jinja2_view as view
 
 from conf import STATIC_DIR
 
