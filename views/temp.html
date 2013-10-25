@@ -6,11 +6,45 @@
 
 {% block content %}
 
-{% for t in ts %}
-    <li>{{ t.name }}</li>
-    <li>{{ t.description }}</li>
-    <li>{{ t.temp }}</li>
-    <li>{{ t.datetime }}</li>
-{% endfor %}
+    <canvas id="myChart" width="700" height="400"></canvas>
+
+{#{% for t in ts %}#}
+{#    <li>{{ t.name }}</li>#}
+{#    <li>{{ t.description }}</li>#}
+{#    <li>{{ t.temp }}</li>#}
+{#    <li>{{ t.datetime }}</li>#}
+{#{% endfor %}#}
+
+{% endblock %}
+
+{% block foot %}
+    <script>
+    //Get context with jQuery - using jQuery's .get() method.
+    var ctx = $("#myChart").get(0).getContext("2d");
+    //This will get the first returned node in the jQuery collection.
+    var myNewChart = new Chart(ctx);
+
+    var data = {
+	labels : [
+        {% for t in count %}
+            "{{ t }}",
+        {% endfor %}
+    ],
+	datasets : [
+		{
+			fillColor : "rgba(220,220,220,0.5)",
+			strokeColor : "rgba(220,220,220,1)",
+			pointColor : "rgba(220,220,220,1)",
+			pointStrokeColor : "#fff",
+			data : [
+                {% for tt in ts %}
+                    {{ tt.temp/10000 }},
+                {% endfor %}
+            ]
+		}
+	]
+    };
+    new Chart(ctx).Line(data);
+    </script>
 
 {% endblock %}

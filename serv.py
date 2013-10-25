@@ -25,12 +25,8 @@ def index():
 def temperature():
 
     ts = temperatures.find()
-    return dict(ts = ts)
-
-
-
-
-
+    count = range(ts.count())
+    return dict(ts = ts, count=count)
 
 
 if __name__ == '__main__':
