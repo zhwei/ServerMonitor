@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Bottle is a fast and simple micro-framework for small web applications. It
-offers request dispatching (Routes) with url parameter support, templates,
+offers request dispatching (Routes) with url parameter support, views,
 a built-in HTTP Server and adapters for many third party WSGI/HTTP-server and
 template engines - all in a single file and with no dependencies other than the
 Python Standard Library.
@@ -3293,7 +3293,7 @@ class StplSyntaxError(TemplateError): pass
 
 
 class StplParser(object):
-    ''' Parser for stpl templates. '''
+    ''' Parser for stpl views. '''
     _re_cache = {} #: Cache for compiled re patterns
     # This huge pile of voodoo magic splits python code into 8 different tokens.
     # 1: All kinds of python strings (trust me, it works)
@@ -3446,7 +3446,7 @@ class StplParser(object):
         if self.lineno <= 2 and not line.strip() and 'coding' in comment:
             m = re.match(r"#.*coding[:=]\s*([-\w.]+)", comment)
             if m:
-                depr('PEP263 encoding strings in templates are deprecated.')
+                depr('PEP263 encoding strings in views are deprecated.')
                 enc = m.group(1)
                 self.source = self.source.encode(self.encoding).decode(enc)
                 self.encoding = enc
