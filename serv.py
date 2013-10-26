@@ -3,9 +3,13 @@
 
 from bottle import route, run, static_file
 from bottle import jinja2_view as view
+from pymongo import Connection
 
 from conf import STATIC_DIR
 
+con = Connection()
+db = con.ServerMonitor
+temperatures = db.temperature
 
 @route('/static/<filename:path>')
 def send_static(filename):
@@ -15,6 +19,19 @@ def send_static(filename):
 @view('index')
 def index():
     return dict(name="hello world!")
+
+@route("/temp")
+@view("temp")
+def temperature():
+
+    ts = temperatures.find()
+    return dict(ts = ts)
+
+
+
+
+
+
 
 if __name__ == '__main__':
     run(host='localhost', port=8080, debug=True)

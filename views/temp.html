@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    温度
+{% endblock %}
+
+{% block content %}
+
+{% for t in ts %}
+    <li>{{ t.name }}</li>
+    <li>{{ t.description }}</li>
+    <li>{{ t.temp }}</li>
+    <li>{{ t.datetime }}</li>
+{% endfor %}
+
+{% endblock %}
