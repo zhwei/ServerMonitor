@@ -24,9 +24,13 @@ def index():
 @view("temp")
 def temperature():
 
-    ts = temperatures.find()
-    count = range(ts.count())
-    return dict(ts = ts, count=count)
+    datas = temperatures.find()
+
+    labels = []
+    for i in datas:
+        labels.append(i['datetime'])
+
+    return dict(labels=labels, datas=datas)
 
 
 if __name__ == '__main__':

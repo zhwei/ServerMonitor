@@ -26,8 +26,8 @@
 
     var data = {
 	labels : [
-        {% for t in count %}
-            "{{ t }}",
+        {% for t in labels %}
+            "{{ t.strftime('%Y-%m-%d') }}",
         {% endfor %}
     ],
 	datasets : [
@@ -37,8 +37,8 @@
 			pointColor : "rgba(220,220,220,1)",
 			pointStrokeColor : "#fff",
 			data : [
-                {% for tt in ts %}
-                    {{ tt.temp/10000 }},
+                {% for tt in datas %}
+                    {{ tt.temp }},
                 {% endfor %}
             ]
 		}

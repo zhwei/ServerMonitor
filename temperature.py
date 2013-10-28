@@ -34,7 +34,7 @@ while True:
         temp1 = {
             "name": "room_611",
             "description": "鸿远楼611室",
-            "temp": temp,
+            "temp": float   (temp)/1000,
             "datetime": datetime.datetime.now()
         }
         temperatures.insert(temp1)
