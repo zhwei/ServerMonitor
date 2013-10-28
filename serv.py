@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from bottle import route, run, static_file
-from bottle import jinja2_view as view
+from bottle import jinja2_view as view, jinja2_template as template
+
+import pymongo
 from pymongo import Connection
 
 from conf import STATIC_DIR
@@ -16,21 +18,21 @@ def send_static(filename):
     return static_file(filename, root=STATIC_DIR)
 
 @route("/")
-@view('index')
 def index():
-    return dict(name="hello world!")
+    return template('index',name="hello world!")
+
 
 @route("/temp")
-@view("temp")
 def temperature():
+    """
+     db.Account.find().sort("UserName",pymongo.ASCENDING)   --升序
+     db.Account.find().sort("UserName",pymongo.DESCENDING)  --降序
+    """
+    datas = temperatures.find().sort('datetime',pymongo.DESCENDING).limit(10)
 
-    datas = temperatures.find()
+    labels = [i for i in range(10)]
 
-    labels = []
-    for i in datas:
-        labels.append(i['datetime'])
-
-    return dict(labels=labels, datas=datas)
+    return template('temp', labels=labels, datas=datas)
 
 
 if __name__ == '__main__':

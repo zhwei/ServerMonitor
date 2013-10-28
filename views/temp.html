@@ -7,14 +7,7 @@
 {% block content %}
 
     <canvas id="myChart" width="700" height="400"></canvas>
-
-{#{% for t in ts %}#}
-{#    <li>{{ t.name }}</li>#}
-{#    <li>{{ t.description }}</li>#}
-{#    <li>{{ t.temp }}</li>#}
-{#    <li>{{ t.datetime }}</li>#}
-{#{% endfor %}#}
-
+    <p>现在 --- > (每十秒) -- ></p>
 {% endblock %}
 
 {% block foot %}
@@ -27,7 +20,7 @@
     var data = {
 	labels : [
         {% for t in labels %}
-            "{{ t.strftime('%Y-%m-%d') }}",
+            "{{ t }}",
         {% endfor %}
     ],
 	datasets : [
