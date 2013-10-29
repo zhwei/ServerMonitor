@@ -1,0 +1,27 @@
+{% extends 'base' %}
+
+{% block title %}
+创建
+{% endblock %}
+
+{% block content %}
+
+<div>
+    <form action="/server/add" method="POST">
+        <fieldset>
+            <legend>添加服务器</legend>
+            <label>服务器名</label><input name="name" type="text" />
+            <label>IP:PORT</label><input name="ip" type="text"/>
+            <span class="help-block">IP and PORT, eg: 127.0.0.1:8080.</span>
+            <label>描述</label>
+            <textarea name="description" placeholder="这里输入服务器的描述!"></textarea>
+            <label>购进日期</label><input name="date" type="text"/>
+            <span class="help-block">购进日期，格式随意。</span>
+        </fieldset>
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary">提交</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

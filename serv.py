@@ -12,9 +12,10 @@ from tools import db
 from tools import plat
 from conf import STATIC_DIR
 from tools.proc_files import Proc
+from tools.work_flow import init_server
 
 from bson.objectid import ObjectId
-temperatures, server = db.documents()
+temperatures, server, location = db.documents()
 
 @route('/static/<filename:path>')
 def send_static(filename):
@@ -30,14 +31,14 @@ def list_server():
     list server
     """
     servers = server.find()
-    return template('list_server', servers = servers)
+    return template('list', servers = servers)
 
 @route('/server/add')
 def create_server():
     """
     create server
     """
-    return template('form')
+    return template('server_form')
 
 @route('/server/add', method='POST')
 def do_create_server():
@@ -67,6 +68,7 @@ def do_create_server():
         "date": _date,
     }
     server.insert(server1)
+    init_server(ip)
     return "create server ok! <a href='/'>首页</a>"
 
 @route('/server/detail/<id:re:.*>')
@@ -74,6 +76,15 @@ def detail_server(id):
     ser = server.find_one({'_id':ObjectId(id)})
     print ser['cpu_info']
     return template('detail_server', locals())
+
+@route('/location/list')
+def list_location():
+
+    locations = location.find()
+
+    return template('list', locals())
+
+
 
 @route("/funcs")
 def funcs():
@@ -103,7 +114,7 @@ def lists():
     import platform as pl
     pl = pl
 
-    return template('list', locals())
+    return template('others', locals())
 
 @route("/temp")
 def temperature():

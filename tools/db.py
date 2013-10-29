@@ -12,5 +12,6 @@ def documents():
     """
     temperatures = db.temperature
     server = db.server
+    location = db.location
 
-    return temperatures, server
+    return temperatures, server, location
