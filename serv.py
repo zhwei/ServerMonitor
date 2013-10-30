@@ -10,13 +10,15 @@ from bottle import (route,
 from bottle import (jinja2_view as view,
                     jinja2_template as template,)
 
+from bson.objectid import ObjectId
+from socket import error as SocketError
+
 from tools import db
 from tools import plat
 from conf import STATIC_DIR
 from tools.proc_files import Proc
 from tools.work_flow import init_server
 
-from bson.objectid import ObjectId
 temperatures, server, location = db.documents()
 
 @route('/static/<filename:path>')
@@ -43,7 +45,11 @@ def create_server():
     """
     create server
     """
-    return template('server_form')
+    locations=[]
+    for l in location.find():
+        locations.append((l['_id'],l['location']))
+    print locations
+    return template('server_form', locals())
 
 @route('/server/add', method='POST')
 def do_create_server():
@@ -65,30 +71,41 @@ def do_create_server():
     _ip = request.forms.get('ip')
     _description = request.forms.get('description')
     _date = request.forms.get('date')
-
+    _location_ID=request.forms.get('location')
+    
     server1 = {
         "name": _name,
         "ip": _ip,
         "description": _description,
         "date": _date,
+        "location_ID": _location_ID,
     }
     server.insert(server1)
-    init_server(_ip)
-    return redirect('list')
+    redirect('list')
 
-@route('/server/update/<id:re:.*>')
-def update_server(id):
-    ser_instance = server.find_one({'_id':ObjectId(id)})
+@route('/server/init/<oid:re:.*>')
+def init_server_info(oid):
+
+    try:
+        init_server(oid)
+    except SocketError:
+        return 'ip and port error'
+    redirect('/server/detail/%s' % oid)
+
+
+@route('/server/update/<oid:re:.*>')
+def update_server(oid):
+    ser_instance = server.find_one({'_id':ObjectId(oid)})
     return template('server_form', locals())
 
 @route('/server/update/<id:re:.*>', method='POST')
-def do_update_server():
+def do_update_server(id):
 
     _name = request.forms.get('name')
     _ip = request.forms.get('ip')
     _description = request.forms.get('description')
     _date = request.forms.get('date')
-
+    print id, type(id)
     server.update({'_id':ObjectId(id)},
                   {'$set':{
                         "name": _name,
@@ -96,8 +113,8 @@ def do_update_server():
                         "description": _description,
                         "date": _date,
                     }
-                  })
-    return redirect('list')
+                  },)
+    return redirect('../list')
 
 @route('/server/detail/<id:re:.*>')
 def detail_server(id):
@@ -107,22 +124,19 @@ def detail_server(id):
 @route('/location/add')
 def create_location():
 
-    return template('loc_form')
+    return template('loc_form',locals())
 
 @route('/location/add', method='POST')
 def do_create_location():
     _location = request.forms.get('location')
     _description = request.forms.get('description')
     _notes = request.forms.get('notes')
-
     _location1 = {
         'location':_location,
         'description': _description,
         'notes': _notes,
     }
-
     location.insert(_location1)
-
     redirect('list')
 
 

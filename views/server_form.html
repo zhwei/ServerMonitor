@@ -18,10 +18,10 @@
             <legend>添加服务器</legend>
             {{ form.input(name='name', label='服务器名', value=ser_instance.name) }}
             {{ form.input(name='ip', label='IP:PORT', help_text="IP and PORT, eg: 127.0.0.1:8080.", value=ser_instance.ip) }}
-            {{ form.input(name='description', label='描述', value=ser_instance.description) }}
+            {{ form.textarea(name='description', label='描述', placeholder='必要信息', value=ser_instance.description) }}
             {{ form.input(name='date', label='购进日期', help_text="购进日期，格式随意。", value=ser_instance.date) }}
+            {{ form.select(name='location', label='所在机房', help_text='所在机房', options=locations) }}
         </fieldset>
-        {{ form.submit() }}
     </form>
 </div>
 

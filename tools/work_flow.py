@@ -36,14 +36,14 @@ def set_server_values(id, remote):
                         )
                   })
 
-def init_server(ip):
+def init_server(oid):
     '''
     after do_create_server() in sery.py
     init the server1
     '''
-    a = server.find_one({'ip':ip})
-    remote = connect(ip)
-    set_server_values(a['_id'], remote)
+    a = server.find_one({'_id':ObjectId(oid)})
+    remote = connect(a['ip'])
+    set_server_values(oid, remote)
 
 
 

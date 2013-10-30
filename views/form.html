@@ -3,9 +3,19 @@
     <span class="help-block">{{ help_text }}</span>
 {%- endmacro %}
 
-{%- macro textarea(name, label,help_text='',value='', rows=5, cols=100) -%}
+{%- macro textarea(name, label,placeholder='', help_text='',value='', rows=5, cols=100) -%}
     <label>{{ label }}</label>
-    <textarea name="{{ name }}" rows="{{ rows }}" cols="{{ cols }}" placeholder="{{ value|e }}">{{ value|e }}</textarea>
+    <textarea name="{{ name }}" rows="{{ rows }}" cols="{{ cols }}" placeholder="{{ placeholder }}">{{ value|e }}</textarea>
+    <span class="help-block">{{ help_text }}</span>
+{%- endmacro %}
+
+{%- macro select(name, label, help_text='',value='', options=[]) -%}
+    <label>{{ label }}</label>
+    <select name="{{ name }}">
+    {% for option in options %}
+        <option value="{{ option[0] }}">{{ option[1] }}</option>
+    {% endfor %}
+    </select>
     <span class="help-block">{{ help_text }}</span>
 {%- endmacro %}
 

@@ -6,12 +6,16 @@
 
 {% import 'form' as form %}
 
+{% if loc_instance is not defined %}
+    {% set loc_instance = {'location':'',  'description':'', 'notes':''} %}
+{% endif %}
+
 {% block content %}
 <div>
     <form action="" method="POST" name="form" class="form">
-        {{ form.input(name='location', label='机房名称') }}
-        {{ form.textarea(name='description', label='描述', value='机房描述') }}
-        {{ form.textarea(name='notes', label='提醒', value='随便写写') }}
+        {{ form.input(name='location', label='机房名称', value=loc_instance.location) }}
+        {{ form.textarea(name='description', label='描述', placeholder='机房描述',value=loc_instance.description) }}
+        {{ form.textarea(name='notes', label='提醒', placeholder='随便写写',value=loc_instance.notes) }}
         {{ form.submit() }}
     </form>
 </div>
