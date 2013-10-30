@@ -4,17 +4,21 @@
 import os
 import re
 import time
+from collections import namedtuple
+
 from human import human_read
 
 class Proc:
 
     def __init__(self):
         self.proc_file = dict(
+            PROC = '/proc',
             MEM_INFO = "/proc/meminfo", # 内存使用
             CPU_INFO = '/proc/cpuinfo',
             CPU_STAT = '/proc/stat',    # cpu占用率
             LOAD_AVG = '/proc/loadavg', #  cpu负载
             UP_TIME = '/proc/uptime',
+            NET_STAT = '/proc/net/dev'  #网卡
         )
 
     def __read_file(self, fi):
@@ -32,7 +36,7 @@ class Proc:
                 if not match:
                     continue # skip lines that don't parse
                 key, value = match.groups(['key', 'value'])
-                result[key] = int(value)
+                result[key] = float(value)
         return result
 
     def __meminfo(self):
@@ -45,7 +49,23 @@ class Proc:
         """
         read /proc/cpuinfo
         """
-        pass
+        with open(self.proc_file['CPU_INFO']) as f:
+            model = list()
+            for line in f:
+                # Ignore the blank line separating the information between
+                # details about two processing units
+                if line.strip():
+                    if line.rstrip('\n').startswith('model name'):
+                        model_name = line.rstrip('\n').split(':')[1]
+                        model.append(model_name)
+
+        return model
+
+    def cpu_info(self):
+        '''
+        每个处理器单元的模式名
+        '''
+        return self.__cpu_info()
 
     def __read_cpu_str(self):
         """
@@ -101,32 +121,22 @@ class Proc:
         )
         return loadavg
     def net_stat(self):
-        net = []
-        f = open("/proc/net/dev")
-        lines = f.readlines()
-        f.close()
-        for line in lines[2:]:
-            con = line.split()
+        """
+        获取网卡流量信息 /proc/net/dev
+        返回dict,单位byte
+        """
+        with open(self.proc_file['NET_STAT']) as fi:
+            net_dump = fi.readlines()
 
-            intf = dict(
-                zip(
-                    ( 'interface','ReceiveBytes','ReceivePackets',
-                      'ReceiveErrs','ReceiveDrop','ReceiveFifo',
-                      'ReceiveFrames','ReceiveCompressed','ReceiveMulticast',
-                      'TransmitBytes','TransmitPackets','TransmitErrs',
-                      'TransmitDrop', 'TransmitFifo','TransmitFrames',
-                      'TransmitCompressed','TransmitMulticast' ),
-                    ( con[0].rstrip(":"),int(con[1]),int(con[2]),
-                      int(con[3]),int(con[4]),int(con[5]),
-                      int(con[6]),int(con[7]),int(con[8]),
-                      int(con[9]),int(con[10]),int(con[11]),
-                      int(con[12]),int(con[13]),int(con[14]),
-                      int(con[15]),int(con[16]), )
-                )
-            )
+        device_data={}
+        data = namedtuple('data',['rx','tx'])
+        for line in net_dump[2:]:
+            line = line.split(':')
+            if line[0].strip() != 'lo':
+                device_data[line[0].strip()] = data(float(line[1].split()[0])/(1024.0*1024.0),
+                                                    float(line[1].split()[8])/(1024.0*1024.0))
 
-            net.append(intf)
-        return net
+        return device_data
 
     def uptime_stat(self):
         """
@@ -169,10 +179,25 @@ class Proc:
         hd['used'] = disk.f_bsize * disk.f_bfree
         return hd
 
+    def process_num(self):
+        """
+        return process num
+        """
+        num = 0
+        for subdir in os.listdir(self.proc_file['PROC']):
+            if subdir.isdigit():
+                num += 1
+        return num
+
 m = Proc()
 #print(m.mem())
-print m.cpu_usage()
+#print m.cpu_usage()
 #print(m.load_avg())
 #print(m.uptime_stat())
-#print(m.net_stat())
+#print(m.net_stat()['ens33'].tx)
 #print(m.disk_stat())
+#print(m.cpu_info())
+
+#for i in m.net_stat():
+#    print m.net_stat()[i].rx, m.net_stat()[i].tx
+print m.process_num()

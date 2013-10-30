@@ -1,0 +1,54 @@
+{% extends 'base' %}
+
+{% block title %}
+功能
+{% endblock %}
+
+{% block content %}
+
+    <div class="span8">
+    <h2>cpu usage</h2>
+        <canvas id="cpu-usage"></canvas>
+        <p>已用：<b>{{ cpu_usage * 100 }}%</b></p>
+    </div>
+    <div class="span8">
+        <h2>mem info</h2>
+        <canvas id="mem-info"></canvas>
+        <p>全部：<b>{{ mem_info['mem_total'] }}K</b></p>
+        <p>已用：<b>{{ mem_info['mem_used'] }}K</b></p>
+    </div>
+
+{% endblock %}
+
+{% block foot %}
+    <script>
+        var ctx = $("#cpu-usage").get(0).getContext("2d");
+        var myNewChart = new Chart(ctx);
+        var data = [
+                    {
+                        value: {{ cpu_usage * 100 }},
+                        color:"#F38630"
+                    },
+                    {
+                        value : 100,
+                        color : "#69D2E7"
+                    }
+                ];
+        new Chart(ctx).Pie(data);
+
+        var ctx1 = $("#mem-info").get(0).getContext("2d");
+        var MemChart = new Chart(ctx1);
+        var mem_data = [
+                    {
+                        value: {{ mem_usage * 100 }},
+                        color:"#F38630"
+                    },
+                    {
+                        value : 100,
+                        color : "#69D2E7"
+                    }
+                ];
+        new Chart(ctx1).Pie(mem_data);
+    </script>
+
+{% endblock %}
