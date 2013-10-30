@@ -1,0 +1,61 @@
+{% extends 'base' %}
+
+{% block title %}
+服务器{{ ser.name }}
+{% endblock %}
+
+{% block content %}
+
+<div>
+
+    <dl class="dl-horizontal">
+        <dt>服务器名称</dt>
+        <dd>{{ ser.name }}</dd>
+        <dt>IP:PORT</dt>
+        <dd>{{ ser.ip }}</dd>
+        <dt>描述</dt>
+        <dd>{{ ser.description }}</dd>
+        <dt>购进日期</dt>
+        <dd>{{ ser.date }}</dd>
+        <dt>操作系统</dt>
+        <dd>{{ ser.system }}</dd>
+        <dt>主机名</dt>
+        <dd>{{ ser.host }}</dd>
+        <dt>处理器单元信息</dt>
+            {% for cpu in ser.cpu_info %}
+                <dd>{{ cpu }}</dd>
+            {% endfor %}
+        <dt>系统详细信息</dt>
+        {% for uname in ser.uname %}
+            <dd>{{ uname }}</dd>
+        {% endfor %}
+        <dt></dt>
+        <dd></dd>
+        <dt></dt>
+        <dd></dd>
+        <dt></dt>
+        <dd></dd>
+    </dl>
+
+{#    <p>{{ ser.name }}</p>#}
+{##}
+{#    <p>{{ ser.ip }}</p>#}
+{##}
+{#    <p>{{ ser.description }}</p>#}
+{##}
+{#    <p>{{ ser.date }}</p>#}
+{##}
+{#    <p>{{ ser.cpu_info }}</p>#}
+{##}
+{#    <p>{{ ser.uname }}</p>#}
+{##}
+{#    <p>{{ ser.node }}</p>#}
+{##}
+{#    <p>{{ ser }}</p>#}
+{##}
+{#    <p></p>#}
+{##}
+{#    <p></p>#}
+</div>
+
+{% endblock %}

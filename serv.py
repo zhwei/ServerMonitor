@@ -3,19 +3,18 @@
 
 from bottle import (route,
                     run,
+                    request,
                     static_file,)
 from bottle import (jinja2_view as view,
                     jinja2_template as template,)
 
-import pymongo
-from pymongo import Connection
-
+from tools import db
+from tools import plat
 from conf import STATIC_DIR
 from tools.proc_files import Proc
 
-con = Connection()
-db = con.ServerMonitor
-temperatures = db.temperature
+from bson.objectid import ObjectId
+temperatures, server = db.documents()
 
 @route('/static/<filename:path>')
 def send_static(filename):
@@ -24,6 +23,57 @@ def send_static(filename):
 @route("/")
 def index():
     return template('index',name="hello world!")
+
+@route('/server/list')
+def list_server():
+    """
+    list server
+    """
+    servers = server.find()
+    return template('list_server', servers = servers)
+
+@route('/server/add')
+def create_server():
+    """
+    create server
+    """
+    return template('form')
+
+@route('/server/add', method='POST')
+def do_create_server():
+    """
+    Server = {
+        "name": _name,
+        "ip": _ip,
+        "description": _description,
+        "date": _date,
+        # ---auto---------
+        "system": get_system(),
+        "host": get_node(),
+        "cpu_info": cpu_info(),
+        "location_ID":location,
+        "uname": get_uname(),
+    }
+    """
+    _name = request.forms.get('name')
+    _ip = request.forms.get('ip')
+    _description = request.forms.get('description')
+    _date = request.forms.get('date')
+
+    server1 = {
+        "name": _name,
+        "ip": _ip,
+        "description": _description,
+        "date": _date,
+    }
+    server.insert(server1)
+    return "create server ok! <a href='/'>首页</a>"
+
+@route('/server/detail/<id:re:.*>')
+def detail_server(id):
+    ser = server.find_one({'_id':ObjectId(id)})
+    print ser['cpu_info']
+    return template('detail_server', locals())
 
 @route("/funcs")
 def funcs():
@@ -44,6 +94,15 @@ def lists():
     cpu_info = p.cpu_info()
     net_stat = p.net_stat()
 
+    uname = plat.get_uname()
+    system = plat.get_system()
+
+    node = plat.get_node()
+    distribution = plat.get_linux_distribution()
+
+    import platform as pl
+    pl = pl
+
     return template('list', locals())
 
 @route("/temp")
@@ -52,7 +111,7 @@ def temperature():
      db.Account.find().sort("UserName",pymongo.ASCENDING)   --升序
      db.Account.find().sort("UserName",pymongo.DESCENDING)  --降序
     """
-    datas = temperatures.find().sort('datetime',pymongo.DESCENDING).limit(10)
+    datas = temperatures.find().sort('datetime', -1).limit(10)
 
     labels = [i for i in range(10)]
 

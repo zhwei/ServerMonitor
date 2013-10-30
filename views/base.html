@@ -57,12 +57,27 @@
       </div>
     </div>
 
-    <div class="container">
-
-      {% block content %}
-      
-      {% endblock %}
-
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span3">
+                <div class="well sidebar-nav">
+                    <ul class="nav nav-list">
+                      <li class="nav-header">服务器相关</li>
+                      <li><a href="/server/list">服务器列表</a></li>
+                      <li><a href="/server/add">添加服务器</a></li>
+                      <li><a href="#">Link</a></li>
+                      <li class="nav-header">网站相关</li>
+                      <li><a href="#">Link</a></li>
+                      <li class="nav-header">机房</li>
+                      <li><a href="/temp">机房温度</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="span9">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
     </div> <!-- /container -->
 
     <!-- Le javascript

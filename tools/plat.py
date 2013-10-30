@@ -35,3 +35,10 @@ def get_architecture():
     return 64bit or 32bit
     """
     return platform.architecture()[0]
+
+def get_node():
+    """
+    return node name
+    hostname
+    """
+    return platform.node()

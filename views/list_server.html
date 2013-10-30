@@ -1,0 +1,29 @@
+{% extends 'base' %}
+
+{% block title %}
+服务器列表
+{% endblock %}
+
+{% block content %}
+
+<div>
+    <table class="table table-hover">
+        <tr>
+            <th>服务器名</th>
+            <th>IP:PORT</th>
+            <th>描述</th>
+            <th>购进日期</th>
+        </tr>
+        {% for server in servers %}
+        <tr>
+            <td><a href="/server/detail/{{ server._id }}">{{ server.name }}</a></td>
+            <td>{{ server.ip }}</td>
+            <td>{{ server.description }}</td>
+            <td>{{ server.date }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+</div>
+
+{% endblock %}

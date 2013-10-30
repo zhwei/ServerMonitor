@@ -6,17 +6,42 @@
 
 {% block content %}
 
+    <p>平台： {{ system }}</p>
+    <p>系统信息： {{ uname }}</p>
+    <p>主机名： {{ node }}</p>
+    <p>{{ pl.python_version() }}</p>
+
     <ul>
-        <li>load_avg:<b>{{ load_avg }}</b></li>
-        <li>process num:<b>{{ process_num }}</b></li>
-        <li>uptime:<b>{{ up_time }}</b></li>
-        <li>disk stat:<b>{{ disk_stat }}</b></li>
-        <li>cpu info:<b>{{ cpu_info }}</b></li>
-        <li>net stat<b>{{ net_stat }}</b></li>
-        <li><b></b></li>
-        <li><b></b></li>
-        <li><b></b></li>
-        <li><b></b></li>
+        <li>系统平均负载:
+            <ul>
+                <li>最近一分钟：{{ load_avg['lavg_1'] }}</li>
+                <li>最近五分钟：{{ load_avg['lavg_5'] }}</li>
+                <li>最近十五分钟：{{ load_avg['lavg_15'] }}</li>
+                <li>最后PID：{{ load_avg['last_pid'] }}</li>
+                <li>nr：{{ load_avg['nr'] }}</li>
+            </ul>
+        </li>
+
+        <li>进程数:<b>{{ process_num }}个</b></li>
+
+        <li>开机时间:<b>{{ up_time['day'] }}天{{ up_time['hour'] }}小时{{ up_time['minute'] }}分钟{{ up_time['second'] }}秒</b></li>
+
+        <li>磁盘状况:<b>可用：{{ disk_stat['available'] }}K 已用：{{ disk_stat['used'] }}K总容量：{{ disk_stat['capacity'] }}K</b></li>
+
+        <li>处理器单元:
+            {% for cpu in cpu_info %}
+                <p>{{ cpu }}</p>
+            {% endfor %}
+        </li>
+        <li>流量监控：
+            {% for net in net_stat %}
+                <p>{{ net }}</p>
+                <p>上行：{{ net_stat[net].tx }}M</p>
+                <p>下载：{{ net_stat[net].rx }}M</p>
+            {% endfor %}
+
+
+        </li>
     </ul>
 
 {% endblock %}

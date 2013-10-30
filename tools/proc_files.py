@@ -120,6 +120,7 @@ class Proc:
             last_pid = con[4],
         )
         return loadavg
+
     def net_stat(self):
         """
         获取网卡流量信息 /proc/net/dev
@@ -189,7 +190,7 @@ class Proc:
                 num += 1
         return num
 
-m = Proc()
+#m = Proc()
 #print(m.mem())
 #print m.cpu_usage()
 #print(m.load_avg())
@@ -200,4 +201,4 @@ m = Proc()
 
 #for i in m.net_stat():
 #    print m.net_stat()[i].rx, m.net_stat()[i].tx
-print m.process_num()
+#print m.process_num()
