@@ -47,7 +47,7 @@ class Proc:
         """
         pass
 
-    def __read_cpu_usage(self):
+    def __read_cpu_str(self):
         """
         Read the current system cpu usage from /proc/stat.
         """
@@ -59,6 +59,29 @@ class Proc:
                 if l[0].startswith('cpu'):
                     return l
         return []
+
+    def __read_cpu_usage(self):
+        """
+        get cpu usage info from str
+        """
+        cpustr=self.__read_cpu_str()
+        usni=long(cpustr[1])+long(cpustr[2])+long(cpustr[3])+long(cpustr[5])+long(cpustr[6])+long(cpustr[7])+long(cpustr[4])
+        usn=long(cpustr[1])+long(cpustr[2])+long(cpustr[3])
+
+        return float(usn), float(usni)
+
+    def cpu_usage(self):
+        """
+        get cpu avg used by percent
+        And the __read_cpu_usage()
+        From:
+        http://outofmemory.cn/code-snippet/3428/python-jiankong-linux-cpu-usage-lv
+        """
+        usn1, usni1 = self.__read_cpu_usage()
+        time.sleep(2)
+        usn2, usni2 = self.__read_cpu_usage()
+        cpuper=(usn2-usn1)/(usni2-usni1)
+        return cpuper
 
     def __load_stat(self):
         """
@@ -84,24 +107,7 @@ class Proc:
         f.close()
         for line in lines[2:]:
             con = line.split()
-            intf = {}
-            intf['interface'] = con[0].lstrip(":")
-            intf['ReceiveBytes'] = int(con[1])
-            intf['ReceivePackets'] = int(con[2])
-            intf['ReceiveErrs'] = int(con[3])
-            intf['ReceiveDrop'] = int(con[4])
-            intf['ReceiveFifo'] = int(con[5])
-            intf['ReceiveFrames'] = int(con[6])
-            intf['ReceiveCompressed'] = int(con[7])
-            intf['ReceiveMulticast'] = int(con[8])
-            intf['TransmitBytes'] = int(con[9])
-            intf['TransmitPackets'] = int(con[10])
-            intf['TransmitErrs'] = int(con[11])
-            intf['TransmitDrop'] = int(con[12])
-            intf['TransmitFifo'] = int(con[13])
-            intf['TransmitFrames'] = int(con[14])
-            intf['TransmitCompressed'] = int(con[15])
-            intf['TransmitMulticast'] = int(con[16])
+
             intf = dict(
                 zip(
                     ( 'interface','ReceiveBytes','ReceivePackets',
@@ -140,28 +146,7 @@ class Proc:
         uptime['Free rate'] = float(con[1]) / float(con[0])
         return uptime
 
-    def get_cpu_usage(self):
-        """
-        get cpu avg used by percent
-        And the __read_cpu_usage()
-        From:
-        http://outofmemory.cn/code-snippet/3428/python-jiankong-linux-cpu-usage-lv
-        """
-        cpustr=self.__read_cpu_usage()
-        if not cpustr:
-            return 0
-        usni1=long(cpustr[1])+long(cpustr[2])+long(cpustr[3])+long(cpustr[5])+long(cpustr[6])+long(cpustr[7])+long(cpustr[4])
-        usn1=long(cpustr[1])+long(cpustr[2])+long(cpustr[3])
-        time.sleep(2)
-        cpustr=self.__read_cpu_usage()
-        if not cpustr:
-            return 0
-        usni2=long(cpustr[1])+long(cpustr[2])+float(cpustr[3])+long(cpustr[5])+long(cpustr[6])+long(cpustr[7])+long(cpustr[4])
-        usn2=long(cpustr[1])+long(cpustr[2])+long(cpustr[3])
-        cpuper=(usn2-usn1)/(usni2-usni1)
-        return cpuper
-
-    def get_mem(self):
+    def mem_info(self):
         """
         get mem from __meminfo()
         result: KB
@@ -185,9 +170,9 @@ class Proc:
         return hd
 
 m = Proc()
-print(m.get_mem())
-#print m.get_cpu_usage()
-print(m.load_avg())
-print(m.uptime_stat())
-print(m.net_stat())
-print(m.disk_stat())
+#print(m.mem())
+print m.cpu_usage()
+#print(m.load_avg())
+#print(m.uptime_stat())
+#print(m.net_stat())
+#print(m.disk_stat())
