@@ -45,6 +45,16 @@ class Proc:
         """
         return self.__read_file(self.proc_file['MEM_INFO'])
 
+    def mem_info(self):
+        """
+        get mem from __meminfo()
+        result: KB
+        """
+        dic = self.__meminfo()
+        mem_total = dic['MemTotal']
+        mem_used =  mem_total - dic['MemFree'] - dic['Buffers'] - dic['Cached']
+        return dict(mem_total=mem_total, mem_used=mem_used)
+
     def __cpu_info(self):
         """
         read /proc/cpuinfo
@@ -121,6 +131,12 @@ class Proc:
         )
         return loadavg
 
+    def load_avg(self):
+        """
+        系统平均负载
+        """
+        return self.__load_stat()
+
     def net_stat(self):
         """
         获取网卡流量信息 /proc/net/dev
@@ -157,21 +173,6 @@ class Proc:
         uptime['Free rate'] = float(con[1]) / float(con[0])
         return uptime
 
-    def mem_info(self):
-        """
-        get mem from __meminfo()
-        result: KB
-        """
-        dic = self.__meminfo()
-        mem_total = dic['MemTotal']
-        mem_used =  mem_total - dic['MemFree'] - dic['Buffers'] - dic['Cached']
-        return dict(mem_total=mem_total, mem_used=mem_used)
-
-    def load_avg(self):
-        """
-        系统平均负载
-        """
-        return self.__load_stat()
     def disk_stat(self):
         hd={}
         disk = os.statvfs("/")
@@ -182,7 +183,7 @@ class Proc:
 
     def process_num(self):
         """
-        return process num
+        进程数目
         """
         num = 0
         for subdir in os.listdir(self.proc_file['PROC']):
@@ -190,7 +191,7 @@ class Proc:
                 num += 1
         return num
 
-#m = Proc()
+p = Proc()
 #print(m.mem())
 #print m.cpu_usage()
 #print(m.load_avg())
@@ -198,7 +199,17 @@ class Proc:
 #print(m.net_stat()['ens33'].tx)
 #print(m.disk_stat())
 #print(m.cpu_info())
-
 #for i in m.net_stat():
 #    print m.net_stat()[i].rx, m.net_stat()[i].tx
 #print m.process_num()
+
+dic = {
+    'mem_info': p.mem_info(),
+    'cpu_usage': p.cpu_usage(),
+    'load_avg': p.load_avg(),
+    'net_stat': p.net_stat(),
+    'disk_stat': p.disk_stat(),
+    'up_time': p.uptime_stat(),
+}
+
+print(dic)

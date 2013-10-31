@@ -37,6 +37,13 @@ def set_server_values(id, remote):
                         )
                   })
 
+def set_server(id, dic):
+    """
+    set server values in mongodb
+    """
+    server.update({'_id':ObjectId(id)},
+                  {'$set': dic})
+
 def init_server(oid):
     '''
     after do_create_server() in sery.py

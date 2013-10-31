@@ -9,6 +9,7 @@ import pymongo
 from bson import ObjectId
 
 from tools.db import documents
+from tools.work_flow import connect, set_server
 
 temperatures, server, location = documents()
 
@@ -27,15 +28,16 @@ def main_thread():
     """
     global queue
 
+    if queue.empty() is False:
+        # 如果队列非空则清空队列
+        print('queue not empty!')
+        queue.queue.clear()
+
     servers = server.find()
     for s in servers:
-        _task = ('server', s)
+        _task = ('server', s['_id'], s['ip'])
         with lock:
             queue.put(_task)
-
-    print queue.qsize()
-    queue.queue.clear()
-    print queue.qsize()
 
 def daemon_thread():
 
@@ -45,7 +47,24 @@ def daemon_thread():
     必须包含时间字符串
     所有任务执行完成后wait
     """
-    pass
+    global queue
+
+    for i in range(queue.qsize()):
+        obj, oid, oip = queue.get()
+        print obj, oid, oip
+
+        remote = connect(oip)
+        dic = {
+            'mem_info': remote.mem_info(),
+            'cpu_usage': remote.cpu_usage(),
+            'load_avg': remote.load_avg(),
+            'net_stat': remote.net_stat(),
+            'disk_stat': remote.disk_stat(),
+            'up_time': remote.uptime_stat(),
+        }
+        print(dic)
+        set_server(oid, dic)
 
 queue = Queue()
 main_thread()
+daemon_thread()
