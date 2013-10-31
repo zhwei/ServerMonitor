@@ -42,14 +42,3 @@ while True:
         t = []
     else:
         t.append(c)
-
-
-#for i in range(123123,123134):
-#    temp1 = {
-#        "name": "room_611",
-#        "description": "鸿远楼611室",
-#        "temp": i,
-#        "datetime": datetime.datetime.now()
-#    }
-#    print temp1
-#    temperatures.insert(temp1)

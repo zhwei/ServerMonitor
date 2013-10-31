@@ -3,16 +3,17 @@
 
 import time
 import xmlrpclib
+from Queue import Queue
+from threading import Thread
 from socket import error as SocketError
+
 
 from bson.objectid import ObjectId
 from db import documents
 temperatures, server, location = documents()
 
 def get_server():
-
     servers = server.find()
-
     return servers
 
 def connect(ip):

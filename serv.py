@@ -128,11 +128,11 @@ def update_server(oid):
 @route('/server/detail/<id>/')
 def detail_server(id):
     ser = server.find_one({'_id':ObjectId(id)})
-    condition = {'_id':ObjectId(ser['location_ID'])}
     try:
+        condition = {'_id':ObjectId(ser['location_ID'])}
         ser['location'] = location.find_one(condition)['location']
-    except TypeError:
-        ser['location'] = u'机房未找到'
+    except:
+        ser['location'] = u'<span style="color:red;">机房未找到'
     return template('detail_server', locals())
 
 @route('/location/add')
