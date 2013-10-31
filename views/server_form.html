@@ -4,23 +4,24 @@
 创建
 {% endblock %}
 
+{% import 'form' as form %}
+
+{% if ser_instance is not defined %}
+    {% set ser_instance = {'name':'', 'ip':'', 'description':'', 'date':''} %}
+{% endif %}
+
 {% block content %}
 
 <div>
-    <form action="/server/add" method="POST">
+    <form action="" method="POST">
         <fieldset>
             <legend>添加服务器</legend>
-            <label>服务器名</label><input name="name" type="text" />
-            <label>IP:PORT</label><input name="ip" type="text"/>
-            <span class="help-block">IP and PORT, eg: 127.0.0.1:8080.</span>
-            <label>描述</label>
-            <textarea name="description" placeholder="这里输入服务器的描述!"></textarea>
-            <label>购进日期</label><input name="date" type="text"/>
-            <span class="help-block">购进日期，格式随意。</span>
+            {{ form.input(name='name', label='服务器名', value=ser_instance.name) }}
+            {{ form.input(name='ip', label='IP:PORT', help_text="IP and PORT, eg: 127.0.0.1:8080.", value=ser_instance.ip) }}
+            {{ form.input(name='description', label='描述', value=ser_instance.description) }}
+            {{ form.input(name='date', label='购进日期', help_text="购进日期，格式随意。", value=ser_instance.date) }}
         </fieldset>
-        <div class="btn-group">
-            <button type="submit" class="btn btn-primary">提交</button>
-        </div>
+        {{ form.submit() }}
     </form>
 </div>
 

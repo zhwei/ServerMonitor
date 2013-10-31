@@ -1,9 +1,16 @@
-{% macro input(name, label, help_text="", type='text') -%}
-    <label>{{ label }}</label><input name="{{ name }}" type="{{ type }}"/>
+{% macro input(name, label, value="" , help_text="", type='text') -%}
+    <label>{{ label }}</label><input name="{{ name }}" type="{{ type }}" value="{{ value }}"/>
     <span class="help-block">{{ help_text }}</span>
 {%- endmacro %}
 
-{%- macro textarea(name, help_text='',value='', rows=10, cols=40) -%}
-    <label>{{ help_text }}</label>
-    <textarea name="{{ name }}" rows="{{ rows }}" cols="{{ cols }}" placeholder="{{ value|e }}"></textarea>
+{%- macro textarea(name, label,help_text='',value='', rows=5, cols=100) -%}
+    <label>{{ label }}</label>
+    <textarea name="{{ name }}" rows="{{ rows }}" cols="{{ cols }}" placeholder="{{ value|e }}">{{ value|e }}</textarea>
+    <span class="help-block">{{ help_text }}</span>
+{%- endmacro %}
+
+{%- macro submit(value='提交') -%}
+    <div class="btn-group">
+        <input type="submit" class="btn btn-primary" value="{{ value }}"/>
+    </div>
 {%- endmacro %}

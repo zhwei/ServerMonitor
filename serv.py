@@ -4,7 +4,9 @@
 from bottle import (route,
                     run,
                     request,
-                    static_file,)
+                    static_file,
+                    redirect,
+                    abort,)
 from bottle import (jinja2_view as view,
                     jinja2_template as template,)
 
@@ -25,13 +27,16 @@ def send_static(filename):
 def index():
     return template('index',name="hello world!")
 
-@route('/server/list')
-def list_server():
+@route('/<name>/list')
+def list(name):
     """
     list server
     """
-    servers = server.find()
-    return template('list', servers = servers)
+    if name == 'server':
+        servers = server.find()
+    elif name == 'location':
+        locations = location.find()
+    return template('list', locals())
 
 @route('/server/add')
 def create_server():
@@ -68,22 +73,57 @@ def do_create_server():
         "date": _date,
     }
     server.insert(server1)
-    init_server(ip)
-    return "create server ok! <a href='/'>首页</a>"
+    init_server(_ip)
+    return redirect('list')
+
+@route('/server/update/<id:re:.*>')
+def update_server(id):
+    ser_instance = server.find_one({'_id':ObjectId(id)})
+    return template('server_form', locals())
+
+@route('/server/update/<id:re:.*>', method='POST')
+def do_update_server():
+
+    _name = request.forms.get('name')
+    _ip = request.forms.get('ip')
+    _description = request.forms.get('description')
+    _date = request.forms.get('date')
+
+    server.update({'_id':ObjectId(id)},
+                  {'$set':{
+                        "name": _name,
+                        "ip": _ip,
+                        "description": _description,
+                        "date": _date,
+                    }
+                  })
+    return redirect('list')
 
 @route('/server/detail/<id:re:.*>')
 def detail_server(id):
     ser = server.find_one({'_id':ObjectId(id)})
-    print ser['cpu_info']
     return template('detail_server', locals())
 
-@route('/location/list')
-def list_location():
+@route('/location/add')
+def create_location():
 
-    locations = location.find()
+    return template('loc_form')
 
-    return template('list', locals())
+@route('/location/add', method='POST')
+def do_create_location():
+    _location = request.forms.get('location')
+    _description = request.forms.get('description')
+    _notes = request.forms.get('notes')
 
+    _location1 = {
+        'location':_location,
+        'description': _description,
+        'notes': _notes,
+    }
+
+    location.insert(_location1)
+
+    redirect('list')
 
 
 @route("/funcs")

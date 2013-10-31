@@ -1,0 +1,20 @@
+{% extends 'base' %}
+
+{% block title %}
+    创建机房
+{% endblock %}
+
+{% import 'form' as form %}
+
+{% block content %}
+<div>
+    <form action="" method="POST" name="form" class="form">
+        {{ form.input(name='location', label='机房名称') }}
+        {{ form.textarea(name='description', label='描述', value='机房描述') }}
+        {{ form.textarea(name='notes', label='提醒', value='随便写写') }}
+        {{ form.submit() }}
+    </form>
+</div>
+
+
+{% endblock %}

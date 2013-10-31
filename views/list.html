@@ -15,23 +15,30 @@
 <div>
     <table class="table table-hover">
         <tr>
-            {% if servers %}
-                {% set ths = ['服务器','IP:PORT','描述','购进日期'] %}
-            {% elif locations %}
-                {% set ths = ['地点','描述','其他记录'] %}
-            {% endif %}
             {% for th in ths %}
                 <th>{{ th }}</th>
             {% endfor %}
         </tr>
-        {% for server in servers %}
-        <tr>
-            <td><a href="/server/detail/{{ server._id }}">{{ server.name }}</a></td>
-            <td>{{ server.ip }}</td>
-            <td>{{ server.description }}</td>
-            <td>{{ server.date }}</td>
-        </tr>
-        {% endfor %}
+        {% if servers %}
+            {% for server in servers %}
+            <tr>
+                <td><a href="/server/detail/{{ server._id }}">{{ server.name }}</a></td>
+                <td>{{ server.ip }}</td>
+                <td>{{ server.description }}</td>
+                <td>{{ server.date }}</td>
+            </tr>
+            {% endfor %}
+        {% endif %}
+        {% if locations %}
+            {% for location in locations %}
+                <tr>
+                    <td>{{ location.location }}</td>
+                    <td>{{ location.description }}</td>
+                    <td>{{ location.notes }}</td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+
     </table>
 
 </div>
