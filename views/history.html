@@ -4,16 +4,6 @@
 查询历史
 {% endblock %}
 
-{% block head %}
-    <style>
-        .can {
-            width: 500px;
-            height: 400px;
-        }
-    </style>
-
-{% endblock %}
-
 {% block content %}
     <ul class="breadcrumb">
         <li><a href="">网站后台</a> <span class="divider">/</span></li>
@@ -23,13 +13,41 @@
     </ul>
 
     <div class="span8">
-        <p><b>CPU使用率</b></p>
+        <p><b>正常运行时间：</b></p>
+        <h2><span class="text-success">{{ up_time.day }}</span>天
+        <span class="text-info">{{ up_time.hour }}</span>小时
+        <span class="text-warning">{{ up_time.minute }}</span>分钟
+        <span class="text-error">{{ up_time.second }}</span>秒</h2>
+    </div>
+
+    <div class="span8">
+        <p><b>系统平均负载</b></p>
+        <div class="span8">
+            <h3><b>最近一分钟：</b></h3>
+            <canvas id="load_avg_1" data-type="Line" data-list="{{ load_avg_1 }}"></canvas>
+        </div>
+        <div class="span8">
+            <h3><b>最近五分钟：</b></h3>
+            <canvas id="load_avg_5" data-type="Line" data-list="{{ load_avg_5 }}"></canvas>
+        </div>
+        <div class="span8">
+            <h3><b>最近十五分钟：</b></h3>
+            <canvas id="load_avg_15" data-type="Line" data-list="{{ load_avg_15 }}"></canvas>
+        </div>
+        <div class="span8">
+            <h3>最后PID: <span class="text-error">{{ load_avg.last_pid }}</span></h3>
+            <h3>NR: <span class="text-error">{{ load_avg.nr }}</span></h3>
+        </div>
+    </div>
+
+    <div class="span8">
+        <p><b>CPU使用率(%)</b></p>
         <div class="clearfix"></div>
         <canvas id="cpu-usage" class="can" data-type="Line" data-list="{{ cpu_usage_list }}"></canvas>
     </div>
 
     <div class="span8">
-        <p><b>内存使用率</b></p>
+        <p><b>内存使用率(%)</b></p>
         <canvas id="mem-info" class="can" data-type="Line" data-list="{{ mem_info_list }}"></canvas>
     </div>
 

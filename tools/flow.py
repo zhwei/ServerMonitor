@@ -13,7 +13,7 @@ from bson import ObjectId
 from tools.db import documents, create_server_status, set_server
 from tools.work_flow import connect
 
-temperatures, server, location = documents()
+temperatures, server, location, server_status = documents()
 
 lock = threading.RLock()
 con = threading.Condition()
