@@ -48,7 +48,7 @@ def create_server():
     locations=[]
     for l in location.find():
         locations.append((l['_id'],l['location']))
-    print locations
+    #print locations
     return template('server_form', locals())
 
 @route('/server/add', method='POST')
@@ -93,52 +93,85 @@ def init_server_info(oid):
     redirect('/server/detail/%s' % oid)
 
 
-@route('/server/update/<oid:re:.*>')
+@route('/server/update/<oid>/',method='GET')
+@route('/server/update/<oid>/',method='POST')
 def update_server(oid):
     ser_instance = server.find_one({'_id':ObjectId(oid)})
+    locations=[]
+    for l in location.find():
+        locations.append((str(l['_id']),l['location']))
+
+    if request.method == "POST":
+        _name = request.forms.get('name')
+        _ip = request.forms.get('ip')
+        _description = request.forms.get('description')
+        _date = request.forms.get('date')
+        _location_ID = request.forms.get('location')
+        server.update({'_id':ObjectId(oid)},
+                      {'$set':{
+                            "name": _name,
+                            "ip": _ip,
+                            "description": _description,
+                            "date": _date,
+                            "location_ID": _location_ID,
+                        }
+                      },)
+        return redirect('/server/list')
     return template('server_form', locals())
 
-@route('/server/update/<id:re:.*>', method='POST')
-def do_update_server(id):
-
-    _name = request.forms.get('name')
-    _ip = request.forms.get('ip')
-    _description = request.forms.get('description')
-    _date = request.forms.get('date')
-    print id, type(id)
-    server.update({'_id':ObjectId(id)},
-                  {'$set':{
-                        "name": _name,
-                        "ip": _ip,
-                        "description": _description,
-                        "date": _date,
-                    }
-                  },)
-    return redirect('../list')
 
 @route('/server/detail/<id:re:.*>')
 def detail_server(id):
     ser = server.find_one({'_id':ObjectId(id)})
+    #ser.location = location.find_one({'_id':ser['location_ID']})['location']
     return template('detail_server', locals())
 
 @route('/location/add')
+@route('/location/add', method='POST')
 def create_location():
-
+    if request.method=="POST":
+        _location = request.forms.get('location')
+        _description = request.forms.get('description')
+        _notes = request.forms.get('notes')
+        _location1 = {
+            'location':_location,
+            'description': _description,
+            'notes': _notes,
+        }
+        location.insert(_location1)
+        redirect('list')
     return template('loc_form',locals())
 
-@route('/location/add', method='POST')
-def do_create_location():
-    _location = request.forms.get('location')
-    _description = request.forms.get('description')
-    _notes = request.forms.get('notes')
-    _location1 = {
-        'location':_location,
-        'description': _description,
-        'notes': _notes,
-    }
-    location.insert(_location1)
-    redirect('list')
+#def do_create_location():
+#    _location = request.forms.get('location')
+#    _description = request.forms.get('description')
+#    _notes = request.forms.get('notes')
+#    _location1 = {
+#        'location':_location,
+#        'description': _description,
+#        'notes': _notes,
+#    }
+#    location.insert(_location1)
+#    redirect('list')
 
+@route('/location/update/<oid>/',method='GET')
+@route('/location/update/<oid>/',method='POST')
+def update_location(oid):
+    loc_instance = location.find_one({'_id':ObjectId(oid)})
+
+    if request.method == "POST":
+        _location = request.forms.get('location')
+        _description = request.forms.get('description')
+        _notes = request.forms.get('notes')
+        server.update({'_id':ObjectId(oid)},
+                      {'$set':{
+                        'location':_location,
+                        'description': _description,
+                        'notes': _notes,
+                        }
+                      },)
+        return redirect('/location/list')
+    return template('loc_form', locals())
 
 @route("/funcs")
 def funcs():

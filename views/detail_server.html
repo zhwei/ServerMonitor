@@ -11,6 +11,8 @@
     <dl class="dl-horizontal">
         <dt>服务器名称</dt>
         <dd>{{ ser.name }}</dd>
+        <dt>所在机房</dt>
+        <dd>{{ ser.location }}</dd>
         <dt>IP:PORT</dt>
         <dd>{{ ser.ip }}</dd>
         <dt>描述</dt>
@@ -33,7 +35,7 @@
         <dd></dd>
         <dt></dt>
         <dt><a href="/server/init/{{ ser._id }}">初始化</a></dt>
-        <dt><a href="/server/update/{{ ser._id }}">修改</a></dt>
+        <dt><a href="/server/update/{{ ser._id }}/">修改</a></dt>
         <dd></dd>
     </dl>
 

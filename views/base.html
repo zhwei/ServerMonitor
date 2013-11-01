@@ -62,16 +62,33 @@
             <div class="span3">
                 <div class="well sidebar-nav">
                     <ul class="nav nav-list">
-                      <li class="nav-header">服务器相关</li>
-                      <li><a href="/server/list">服务器列表</a></li>
-                      <li><a href="/server/add">添加服务器</a></li>
-
-                      <li class="nav-header">网站相关</li>
-                      <li><a href="#">Link</a></li>
-                      <li class="nav-header">机房</li>
-                      <li><a href="/location/list">机房列表</a></li>
-                      <li><a href="/location/add">添加机房</a></li>
-                      <li><a href="/temp">机房温度</a></li>
+                      {% set navigation_bar = [
+                            ('/','admin_index','网站后台'),
+                            ('', '', '服务器相关'),
+                            ('/server/list', 'server_list', '服务器列表'),
+                            ('/server/add', 'server_add', '添加服务器'),
+                            ('', '', '网站相关'),
+                            ('#','Link','Link'),
+                            ('','','机房'),
+                            ('/location/list','location_list','机房列表'),
+                            ('/location/add','location_add','添加机房'),
+                            ('/temp','temp','机房温度'),
+                        ] -%}
+                        {% set active_page = active_page|default('admin_index') -%}
+                        {% for href, id, caption in navigation_bar %}
+                          <li
+                                  {% if id == active_page %}
+                                      class="active"
+                                  {% elif href=='' %}
+                                      class="nav-header"
+                                  {% endif %}>
+                            {% if href !='' %}
+                            <a href="{{ href|e }}">{{ caption|e }}</a>
+                            {% else %}
+                                {{ caption|e }}
+                            {% endif %}
+                          </li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>

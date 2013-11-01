@@ -2,8 +2,10 @@
 
 {% if servers %}
     {% set ths = ['服务器','IP:PORT','描述','购进日期'] %}
+    {% set active_page = "server_list" %}
 {% elif locations %}
     {% set ths = ['地点','描述','其他记录'] %}
+    {% set active_page = "location_list" %}
 {% endif %}
 
 {% block title %}

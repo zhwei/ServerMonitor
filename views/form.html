@@ -9,11 +9,12 @@
     <span class="help-block">{{ help_text }}</span>
 {%- endmacro %}
 
-{%- macro select(name, label, help_text='',value='', options=[]) -%}
+{%- macro select(name, label, help_text='',default='', options=[]) -%}
     <label>{{ label }}</label>
+    {% set value = value %}
     <select name="{{ name }}">
-    {% for option in options %}
-        <option value="{{ option[0] }}">{{ option[1] }}</option>
+    {% for oid, location in options %}
+        <option value="{{ oid }}" {% if oid == default %}selected{% endif %}>{{ location }}</option>
     {% endfor %}
     </select>
     <span class="help-block">{{ help_text }}</span>
