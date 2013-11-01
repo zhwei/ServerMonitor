@@ -6,9 +6,10 @@
 
 {% import 'form' as form %}
 
-{% if ser_instance is not defined %}
+{% if ser_instance is undefined %}
     {% set ser_instance = {'name':'', 'ip':'', 'description':'', 'date':''} %}
     {% set active_page = "server_add" %}
+    {% set legend = True %}
 {% endif %}
 
 {% block content %}
@@ -16,7 +17,7 @@
 <div>
     <form action="" method="POST">
         <fieldset>
-            {% if ser_instance is undefined %}
+            {% if legend %}
             <legend>添加服务器</legend>
             {% else %}
             <legend>修改服务器[{{ ser_instance.name }}]</legend>

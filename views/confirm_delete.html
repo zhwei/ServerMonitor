@@ -1,0 +1,20 @@
+{% extends 'base' %}
+
+{% block title %}
+确认删除
+{% endblock %}
+
+
+{% block content %}
+    <h3>是否确认删除[{{ name }}]</h3>
+    <form method="post">
+        <input type="hidden" name="oid" value="{{ oid }}"  />
+        <div class="clearfix"></div>
+        <div class="btn-group">
+            <input type="submit" value="确认" class="btn btn-danger" />
+        </div>
+        <div class="btn-group">
+            <a href="../../list" class="btn btn-inverse">返回</a>
+        </div>
+    </form>
+{% endblock %}

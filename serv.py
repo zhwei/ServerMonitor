@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 from bottle import (route,
                     run,
                     request,
@@ -14,6 +18,7 @@ from bson.objectid import ObjectId
 from socket import error as SocketError
 
 from tools import db
+from tools.db import find_one
 from tools import plat
 from conf import STATIC_DIR
 from tools.proc_files import Proc
@@ -120,10 +125,14 @@ def update_server(oid):
     return template('server_form', locals())
 
 
-@route('/server/detail/<id:re:.*>')
+@route('/server/detail/<id>/')
 def detail_server(id):
     ser = server.find_one({'_id':ObjectId(id)})
-    #ser.location = location.find_one({'_id':ser['location_ID']})['location']
+    condition = {'_id':ObjectId(ser['location_ID'])}
+    try:
+        ser['location'] = location.find_one(condition)['location']
+    except TypeError:
+        ser['location'] = u'机房未找到'
     return template('detail_server', locals())
 
 @route('/location/add')
@@ -142,36 +151,41 @@ def create_location():
         redirect('list')
     return template('loc_form',locals())
 
-#def do_create_location():
-#    _location = request.forms.get('location')
-#    _description = request.forms.get('description')
-#    _notes = request.forms.get('notes')
-#    _location1 = {
-#        'location':_location,
-#        'description': _description,
-#        'notes': _notes,
-#    }
-#    location.insert(_location1)
-#    redirect('list')
 
 @route('/location/update/<oid>/',method='GET')
 @route('/location/update/<oid>/',method='POST')
 def update_location(oid):
     loc_instance = location.find_one({'_id':ObjectId(oid)})
-
     if request.method == "POST":
         _location = request.forms.get('location')
         _description = request.forms.get('description')
         _notes = request.forms.get('notes')
-        server.update({'_id':ObjectId(oid)},
+        location.update({'_id':ObjectId(oid)},
                       {'$set':{
                         'location':_location,
                         'description': _description,
                         'notes': _notes,
                         }
                       },)
-        return redirect('/location/list')
+        redirect('/location/list')
     return template('loc_form', locals())
+
+@route('/<item>/delete/<oid>/')
+@route('/<item>/delete/<oid>/', method="POST")
+def delete(item, oid):
+    if item == "server":
+        obj, main = server, 'name'
+    elif item == "location":
+        obj, main = location, 'location'
+    else:
+        abort(404)
+    if request.method == 'POST':
+        post_id = request.forms.get('oid')
+        print type(post_id), post_id
+        obj.remove({"_id":ObjectId(post_id)})
+        redirect('../../list')
+    name = find_one(obj, oid)[main]
+    return template('confirm_delete', name=name, oid=oid)
 
 @route("/funcs")
 def funcs():

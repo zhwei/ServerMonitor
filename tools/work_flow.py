@@ -44,16 +44,3 @@ def init_server(oid):
     a = server.find_one({'_id':ObjectId(oid)})
     remote = connect(a['ip'])
     set_server_values(oid, remote)
-
-
-
-#for i in get_server():
-#    id = i['_id']
-#    remote = connect(i['ip'])
-#
-#    set_server_values(id, remote)
-#    print server.find()
-
-#for i in server.find():
-#    for a in i:
-#        print a, i[a]

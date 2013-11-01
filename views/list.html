@@ -4,7 +4,7 @@
     {% set ths = ['服务器','IP:PORT','描述','购进日期'] %}
     {% set active_page = "server_list" %}
 {% elif locations %}
-    {% set ths = ['地点','描述','其他记录'] %}
+    {% set ths = ['地点','描述','其他记录','操作'] %}
     {% set active_page = "location_list" %}
 {% endif %}
 
@@ -24,7 +24,7 @@
         {% if servers %}
             {% for server in servers %}
             <tr>
-                <td><a href="/server/detail/{{ server._id }}">{{ server.name }}</a></td>
+                <td><a href="/server/detail/{{ server._id }}/">{{ server.name }}</a></td>
                 <td>{{ server.ip }}</td>
                 <td>{{ server.description }}</td>
                 <td>{{ server.date }}</td>
@@ -37,6 +37,8 @@
                     <td>{{ location.location }}</td>
                     <td>{{ location.description }}</td>
                     <td>{{ location.notes }}</td>
+                    <td><a href="/location/update/{{ location._id }}/">修改</a>|
+                        <a href="/location/delete/{{ location._id }}/">删除</a></td>
                 </tr>
             {% endfor %}
         {% endif %}
