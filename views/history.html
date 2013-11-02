@@ -4,6 +4,16 @@
 查询历史
 {% endblock %}
 
+{% block head %}
+    <style>
+        .can {
+            width: 500px;
+            height: 400px;
+        }
+    </style>
+
+{% endblock %}
+
 {% block content %}
     <ul class="breadcrumb">
         <li><a href="">网站后台</a> <span class="divider">/</span></li>
@@ -12,30 +22,39 @@
         <li class="active">{{ ser.name }}的历史记录</li>
     </ul>
 
-    <p>this is history!</p>
-    {% for sta in status %}
-        <li>{{ sta }}</li>
-    {% endfor %}
+    <div class="span8">
+        <p><b>CPU使用率</b></p>
+        <div class="clearfix"></div>
+        <canvas id="cpu-usage" class="can" data-type="Line" data-list="{{ cpu_usage_list }}"></canvas>
+    </div>
 
+    <div class="span8">
+        <p><b>内存使用率</b></p>
+        <canvas id="mem-info" class="can" data-type="Line" data-list="{{ mem_info_list }}"></canvas>
+    </div>
 
 {% endblock %}
 
 {% block foot %}
     <script>
-        var ctx = $("#cpu-usage").get(0).getContext("2d");
-        var myNewChart = new Chart(ctx);
-        var data = {
-                labels : ["January","February","March","April","May","June","July"],
+        $("canvas").each(function(){
+			var $canvas = $(this);
+			var ctx = this.getContext("2d");
+            var data = {
+                labels : [1,2,3,4,5,6,7,8,9,10],
                 datasets : [
                     {
                         fillColor : "rgba(151,187,205,0.5)",
                         strokeColor : "rgba(151,187,205,1)",
                         pointColor : "rgba(151,187,205,1)",
                         pointStrokeColor : "#fff",
-                        data : [28,48,40,19,96,27,100]
+                        data : $canvas.data('list')
                     }
                 ]
             };
-        new Chart(ctx).Line(data,options);
+			var evalString = "new Chart(ctx)." + $canvas.data("type") + "(data);";
+			eval(evalString);
+		});
+
     </script>
 {% endblock %}
