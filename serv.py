@@ -24,7 +24,7 @@ from conf import STATIC_DIR
 from tools.proc_files import Proc
 from tools.work_flow import init_server
 
-temperatures, server, location = db.documents()
+temperatures, server, location, server_status = db.documents()
 
 @route('/static/<filename:path>')
 def send_static(filename):
@@ -185,6 +185,13 @@ def delete(item, oid):
         redirect('../../list')
     name = find_one(obj, oid)[main]
     return template('confirm_delete', name=name, oid=oid)
+
+
+@route('/history/<oid>/')
+def history(oid):
+    ser = find_one(server, oid)
+    status = server_status.find({'server_ID':ObjectId(oid)}).limit(10)
+    return template('history', locals())
 
 @route("/funcs")
 def funcs():

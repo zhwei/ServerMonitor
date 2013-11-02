@@ -46,7 +46,7 @@ def main_thread():
         daemon.setDaemon(True)
         daemon.start()
         print('%s update value' % daemon.name)
-        time.sleep(20)
+        time.sleep(50)
 
 
 def daemon_thread():
@@ -60,18 +60,18 @@ def daemon_thread():
     global queue
     for i in range(queue.qsize()):
         obj, oid, oip = queue.get()
-        dic = {
-            'server_ID': oid,
-            'datetime': datetime.datetime.now(),
-            'mem_info': remote.mem_info(),
-            'cpu_usage': remote.cpu_usage(),
-            'net_stat': remote.net_stat(),
-            'disk_stat': remote.disk_stat(),
-            'up_time': remote.uptime_stat(),
-            'load_avg': remote.load_avg(),
-        }
         try:
             remote = connect(oip)
+            dic = {
+                'server_ID': oid,
+                'datetime': datetime.datetime.now(),
+                'mem_info': remote.mem_info(),
+                'cpu_usage': remote.cpu_usage(),
+                'net_stat': remote.net_stat(),
+                'disk_stat': remote.disk_stat(),
+                'up_time': remote.uptime_stat(),
+                'load_avg': remote.load_avg(),
+                }
             set_server(oid, {'status_now': 0,}) # update "server
             create_server_status(dic)
             print('update server %s' % oid)

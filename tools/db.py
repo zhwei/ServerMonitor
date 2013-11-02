@@ -14,8 +14,8 @@ def documents():
     temperatures = db.temperature
     server = db.server
     location = db.location
-
-    return temperatures, server, location
+    server_status = db.server_status
+    return temperatures, server, location, server_status
 
 
 def find_one(obj, oid):
@@ -34,4 +34,4 @@ def create_server_status(dic):
     server status values in mongodb
     """
     _status = db.server_status
-    _status.inset(dic)
+    _status.insert(dic)

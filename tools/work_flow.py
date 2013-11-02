@@ -10,7 +10,7 @@ from socket import error as SocketError
 
 from bson.objectid import ObjectId
 from db import documents
-temperatures, server, location = documents()
+temperatures, server, location, server_status = documents()
 
 def get_server():
     servers = server.find()
