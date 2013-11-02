@@ -20,3 +20,18 @@ def documents():
 
 def find_one(obj, oid):
     return obj.find_one({"_id":ObjectId(oid)})
+
+def set_server(id, dic):
+    """
+    set server values in mongodb
+    """
+    server = db.server
+    server.update({'_id':ObjectId(id)},
+                  {'$set': dic})
+
+def create_server_status(dic):
+    """
+    server status values in mongodb
+    """
+    _status = db.server_status
+    _status.inset(dic)

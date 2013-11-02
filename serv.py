@@ -88,14 +88,13 @@ def do_create_server():
     server.insert(server1)
     redirect('list')
 
-@route('/server/init/<oid:re:.*>')
+@route('/server/init/<oid>/')
 def init_server_info(oid):
-
     try:
         init_server(oid)
     except SocketError:
         return 'ip and port error'
-    redirect('/server/detail/%s' % oid)
+    redirect('/server/detail/%s/' % oid)
 
 
 @route('/server/update/<oid>/',method='GET')

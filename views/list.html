@@ -1,7 +1,7 @@
 {% extends 'base' %}
 
 {% if servers %}
-    {% set ths = ['服务器','IP:PORT','描述','购进日期'] %}
+    {% set ths = ['服务器','IP:PORT','描述','实时状况'] %}
     {% set active_page = "server_list" %}
 {% elif locations %}
     {% set ths = ['地点','描述','其他记录','操作'] %}
@@ -27,7 +27,15 @@
                 <td><a href="/server/detail/{{ server._id }}/">{{ server.name }}</a></td>
                 <td>{{ server.ip }}</td>
                 <td>{{ server.description }}</td>
-                <td>{{ server.date }}</td>
+                <td>
+                    {% if server.status_now == 0 %}
+                        <span class="label label-success">正常</span>
+                    {% elif server.status_now == 1 %}
+                        <span class="label label-important">无法连接</span>
+                    {% else %}
+                        <span class="label">等候初始化</span>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         {% endif %}

@@ -2,14 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import time
+import datetime
 import threading
 from Queue import Queue
+from socket import error as SocketError
 
 import pymongo
 from bson import ObjectId
 
-from tools.db import documents
-from tools.work_flow import connect, set_server
+from tools.db import documents, create_server_status, set_server
+from tools.work_flow import connect
 
 temperatures, server, location = documents()
 
@@ -27,17 +29,25 @@ def main_thread():
     不为空时输出日志并清空队列
     """
     global queue
+    while True:
+        if queue.empty() is False:
+            # 如果队列非空则清空队列
+            print('queue not empty!')
+            queue.queue.clear()
 
-    if queue.empty() is False:
-        # 如果队列非空则清空队列
-        print('queue not empty!')
-        queue.queue.clear()
+        servers = server.find()
+        for s in servers:
+            _task = ('server', s['_id'], s['ip'])
+            with lock:
+                queue.put(_task)
 
-    servers = server.find()
-    for s in servers:
-        _task = ('server', s['_id'], s['ip'])
-        with lock:
-            queue.put(_task)
+        daemon = threading.Thread(name='daemon thread %s' % time.time(),
+                                  target=daemon_thread())
+        daemon.setDaemon(True)
+        daemon.start()
+        print('%s update value' % daemon.name)
+        time.sleep(20)
+
 
 def daemon_thread():
 
@@ -48,23 +58,26 @@ def daemon_thread():
     所有任务执行完成后wait
     """
     global queue
-
     for i in range(queue.qsize()):
         obj, oid, oip = queue.get()
-        print obj, oid, oip
-
-        remote = connect(oip)
         dic = {
+            'server_ID': oid,
+            'datetime': datetime.datetime.now(),
             'mem_info': remote.mem_info(),
             'cpu_usage': remote.cpu_usage(),
-            'load_avg': remote.load_avg(),
             'net_stat': remote.net_stat(),
             'disk_stat': remote.disk_stat(),
             'up_time': remote.uptime_stat(),
+            'load_avg': remote.load_avg(),
         }
-        print(dic)
-        set_server(oid, dic)
+        try:
+            remote = connect(oip)
+            set_server(oid, {'status_now': 0,}) # update "server
+            create_server_status(dic)
+            print('update server %s' % oid)
+        except SocketError:
+            dic = {'status_now': 1,} #无法连接
+            set_server(oid, dic)
 
 queue = Queue()
 main_thread()
-daemon_thread()

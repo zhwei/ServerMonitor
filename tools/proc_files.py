@@ -146,12 +146,12 @@ class Proc:
             net_dump = fi.readlines()
 
         device_data={}
-        data = namedtuple('data',['rx','tx'])
+        #data = namedtuple('data',['rx','tx'])
         for line in net_dump[2:]:
             line = line.split(':')
             if line[0].strip() != 'lo':
-                device_data[line[0].strip()] = data(float(line[1].split()[0])/(1024.0*1024.0),
-                                                    float(line[1].split()[8])/(1024.0*1024.0))
+                device_data[line[0].strip()] = {'rx':float(line[1].split()[0])/(1024.0*1024.0),
+                                                'tx':float(line[1].split()[8])/(1024.0*1024.0)}
 
         return device_data
 
@@ -174,11 +174,16 @@ class Proc:
         return uptime
 
     def disk_stat(self):
-        hd={}
+        '''
+        xmlrfclib 中传输字典时，
+        字符串和float能成功。
+        '''
+        hd=dict()
         disk = os.statvfs("/")
         hd['available'] = disk.f_bsize * disk.f_bavail
         hd['capacity'] = disk.f_bsize * disk.f_blocks
         hd['used'] = disk.f_bsize * disk.f_bfree
+        hd = {i:float(hd[i]) for i in hd}
         return hd
 
     def process_num(self):
@@ -191,25 +196,25 @@ class Proc:
                 num += 1
         return num
 
-p = Proc()
-#print(m.mem())
+#m = Proc()
+#print(m.mem_info())
 #print m.cpu_usage()
 #print(m.load_avg())
 #print(m.uptime_stat())
-#print(m.net_stat()['ens33'].tx)
+#print(m.net_stat())
 #print(m.disk_stat())
 #print(m.cpu_info())
 #for i in m.net_stat():
 #    print m.net_stat()[i].rx, m.net_stat()[i].tx
 #print m.process_num()
 
-dic = {
-    'mem_info': p.mem_info(),
-    'cpu_usage': p.cpu_usage(),
-    'load_avg': p.load_avg(),
-    'net_stat': p.net_stat(),
-    'disk_stat': p.disk_stat(),
-    'up_time': p.uptime_stat(),
-}
-
-print(dic)
+#dic = {
+#    'mem_info': p.mem_info(),
+#    'cpu_usage': p.cpu_usage(),
+#    'load_avg': p.load_avg(),
+#    'net_stat': p.net_stat(),
+#    'disk_stat': p.disk_stat(),
+#    'up_time': p.uptime_stat(),
+#}
+#
+#print(dic)
