@@ -52,11 +52,16 @@
             <p>内存总量：<b class="text-success">{{ last_time.mem_info.mem_total/1000000 }}</b>GB</p>
             <p>已使用：<b class="text-warning">{{ last_time.mem_info.mem_used/1000000 }}</b>GB</p>
             <canvas id="mem-info" data-type="Line" data-list="{{ mem_info_list }}" class="span4"></canvas>
-
+        </div>
+        <div class="span4">
+            <h3><b>流量监控</b></h3>
+            {% for net in last_time.net_stat %}
+                {{ last_time.net_stat }}
+                <p>上行流量：<b class="text-success">{{ net.tx }}</b>GB</p>
+                <p>下载流量：<b class="text-info">{{ net.rx }}</b>GB</p>
+            {% endfor %}
         </div>
     </div>
-    <canvas id="test" data-type="Bar" class="span4"></canvas>
-
 
 
 {% endblock %}
@@ -81,7 +86,7 @@
             }
             else if($canvas.data("type")=="Bar"){
                 var data = {
-                    labels : ["January","February","March","April","May","June","July"],
+                    labels : [1,2,3,4,5,6,7,8,9,10],
                     datasets : [
                         {
                             fillColor : "rgba(220,220,220,0.5)",

