@@ -4,6 +4,7 @@
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
+import commands as co
 
 from bottle import (route,
                     run,
@@ -36,7 +37,7 @@ def index():
 
 
 def index_error(content):
-
+    """error page base on base.html """
     return template('error', content=content)
 
 @route('/<name>/list')
@@ -51,19 +52,10 @@ def list(name):
     return template('list', locals())
 
 @route('/server/add')
+@route('/server/add', method='POST')
 def create_server():
     """
     create server
-    """
-    locations=[]
-    for l in location.find():
-        locations.append((l['_id'],l['location']))
-    #print locations
-    return template('server_form', locals())
-
-@route('/server/add', method='POST')
-def do_create_server():
-    """
     Server = {
         "name": _name,
         "ip": _ip,
@@ -77,21 +69,26 @@ def do_create_server():
         "uname": get_uname(),
     }
     """
-    _name = request.forms.get('name')
-    _ip = request.forms.get('ip')
-    _description = request.forms.get('description')
-    _date = request.forms.get('date')
-    _location_ID=request.forms.get('location')
-    
-    server1 = {
-        "name": _name,
-        "ip": _ip,
-        "description": _description,
-        "date": _date,
-        "location_ID": _location_ID,
-    }
-    server.insert(server1)
-    redirect('list')
+
+    if request.method == "POST":
+        _name = request.forms.get('name')
+        _ip = request.forms.get('ip')
+        _description = request.forms.get('description')
+        _date = request.forms.get('date')
+        _location_ID=request.forms.get('location')
+
+        server1 = {
+            "name": _name,
+            "ip": _ip,
+            "description": _description,
+            "date": _date,
+            "location_ID": _location_ID,
+        }
+        server.insert(server1)
+        redirect('list')
+
+    locations=[(l['_id'],l['location']) for l in location.find()]
+    return template('server_form', locals())
 
 @route('/server/init/<oid>/')
 def init_server_info(oid):
@@ -100,7 +97,6 @@ def init_server_info(oid):
     except SocketError:
         return 'ip and port error'
     redirect('/server/detail/%s/' % oid)
-
 
 @route('/server/update/<oid>/',method='GET')
 @route('/server/update/<oid>/',method='POST')
@@ -128,7 +124,6 @@ def update_server(oid):
         return redirect('/server/list')
     return template('server_form', locals())
 
-
 @route('/server/detail/<id>/')
 def detail_server(id):
     ser = server.find_one({'_id':ObjectId(id)})
@@ -155,11 +150,10 @@ def create_location():
         redirect('list')
     return template('loc_form',locals())
 
-
 @route('/location/update/<oid>/',method='GET')
 @route('/location/update/<oid>/',method='POST')
 def update_location(oid):
-    loc_instance = location.find_one({'_id':ObjectId(oid)})
+    """update location """
     if request.method == "POST":
         _location = request.forms.get('location')
         _description = request.forms.get('description')
@@ -172,11 +166,22 @@ def update_location(oid):
                         }
                       },)
         redirect('/location/list')
+    loc_instance = location.find_one({'_id':ObjectId(oid)})
     return template('loc_form', locals())
+
+@route('/web/add')
+@route('/web/add', method='POST')
+def create_web():
+
+    return template('web_form', locals())
 
 @route('/<item>/delete/<oid>/')
 @route('/<item>/delete/<oid>/', method="POST")
 def delete(item, oid):
+    """
+    general delete function
+    need the collection name and the id
+    """
     if item == "server":
         obj, main = server, 'name'
     elif item == "location":
@@ -194,6 +199,9 @@ def delete(item, oid):
 
 @route('/history/<oid>/')
 def history(oid):
+    """
+    history about one server
+    """
     ser = find_one(server, oid)
     status = server_status.find({'server_ID':ObjectId(oid)}).sort('datetime', -1).limit(10)
     status_list = [i for i in status]
@@ -207,11 +215,9 @@ def history(oid):
         last_time = status_list[0]
     except IndexError:
         return index_error('暂无历史记录')
-    #print mem_info_list
-    #for i in status_list:
-    #    print i['datetime']
     return template('history', locals())
-import commands as co
+
+
 @route('/commands')
 @route('/commands', method="POST")
 def commands():
@@ -263,9 +269,6 @@ def temperature():
 
     return template('temp', labels=labels, datas=datas)
 
-
-#if __name__ == '__main__':
-#    run(host='localhost', port=8080, debug=True)
 
 def dev_server():
     run(host='0.0.0.0', port=8080, debug=True)
