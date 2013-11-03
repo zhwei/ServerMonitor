@@ -34,6 +34,11 @@ def send_static(filename):
 def index():
     return template('index',name="hello world!")
 
+
+def index_error(content):
+
+    return template('error', content=content)
+
 @route('/<name>/list')
 def list(name):
     """
@@ -192,14 +197,17 @@ def history(oid):
     ser = find_one(server, oid)
     status = server_status.find({'server_ID':ObjectId(oid)}).sort('datetime', -1).limit(10)
     status_list = [i for i in status]
-    cpu_usage_list = [i['cpu_usage']*100 for i in status_list]
-    mem_info_list = [i['mem_info']['mem_used']/i['mem_info']['mem_total']*100 for i in status_list]
-    up_time = status_list[0]['up_time']
-    load_avg_1 = [float(i['load_avg']['lavg_1']) for i in status_list]
-    load_avg_5 = [float(i['load_avg']['lavg_5']) for i in status_list]
-    load_avg_15 = [float(i['load_avg']['lavg_15']) for i in status_list]
-
-    load_avg = status_list[0]['load_avg']
+    try:
+        cpu_usage_list = [i['cpu_usage']*100 for i in status_list]
+        mem_info_list = [i['mem_info']['mem_used']/i['mem_info']['mem_total']*100 for i in status_list]
+        up_time = status_list[0]['up_time']
+        load_avg_1 = [float(i['load_avg']['lavg_1']) for i in status_list]
+        load_avg_5 = [float(i['load_avg']['lavg_5']) for i in status_list]
+        load_avg_15 = [float(i['load_avg']['lavg_15']) for i in status_list]
+        load_avg = status_list[0]['load_avg']
+        last_time = status_list[0]
+    except IndexError:
+        return index_error('暂无历史记录')
     #print mem_info_list
     #for i in status_list:
     #    print i['datetime']

@@ -12,44 +12,52 @@
         <li class="active">{{ ser.name }}的历史记录</li>
     </ul>
 
-    <div class="span8">
+    <div class="span9">
         <p><b>正常运行时间：</b></p>
         <h2><span class="text-success">{{ up_time.day }}</span>天
         <span class="text-info">{{ up_time.hour }}</span>小时
         <span class="text-warning">{{ up_time.minute }}</span>分钟
         <span class="text-error">{{ up_time.second }}</span>秒</h2>
     </div>
-
-    <div class="span8">
-        <p><b>系统平均负载</b></p>
-        <div class="span8">
-            <h3><b>最近一分钟：</b></h3>
-            <canvas id="load_avg_1" data-type="Line" data-list="{{ load_avg_1 }}"></canvas>
+    <div class="clearfix"></div>
+    <div class="row-fluid">
+        <h3><b>系统平均负载</b></h3>
+        <div class="span4">
+            <p><b>最近一分钟：</b></p>
+            <canvas id="load_avg_1" data-type="Line" data-list="{{ load_avg_1 }}" class="span4"></canvas>
         </div>
-        <div class="span8">
-            <h3><b>最近五分钟：</b></h3>
-            <canvas id="load_avg_5" data-type="Line" data-list="{{ load_avg_5 }}"></canvas>
+        <div class="span4">
+            <p><b>最近五分钟：</b></p>
+            <canvas id="load_avg_5" data-type="Line" data-list="{{ load_avg_5 }}" class="span4"></canvas>
         </div>
-        <div class="span8">
-            <h3><b>最近十五分钟：</b></h3>
-            <canvas id="load_avg_15" data-type="Line" data-list="{{ load_avg_15 }}"></canvas>
+        <div class="span4">
+            <p><b>最近十五分钟：</b></p>
+            <canvas id="load_avg_15" data-type="Line" data-list="{{ load_avg_15 }}" class="span4"></canvas>
         </div>
-        <div class="span8">
-            <h3>最后PID: <span class="text-error">{{ load_avg.last_pid }}</span></h3>
-            <h3>NR: <span class="text-error">{{ load_avg.nr }}</span></h3>
+        <div class="span4">
+            <h4>最后PID: <span class="text-error">{{ last_time.load_avg.last_pid }}</span></h4>
+            <h4>NR: <span class="text-error">{{ last_time.load_avg.nr }}</span></h4>
         </div>
     </div>
 
-    <div class="span8">
-        <p><b>CPU使用率(%)</b></p>
-        <div class="clearfix"></div>
-        <canvas id="cpu-usage" class="can" data-type="Line" data-list="{{ cpu_usage_list }}"></canvas>
+    <div class="row-fluid">
+        <div class="span4">
+            <h3><b>CPU使用率(%)</b></h3>
+            <canvas id="cpu-usage" class="can" data-type="Line" data-list="{{ cpu_usage_list }}" class="span4"></canvas>
+        </div>
     </div>
+    <div class="row-fluid">
+        <div class="span4">
+            <h3><b>内存使用率(%)</b></h3>
+            <p>内存总量：<b class="text-success">{{ last_time.mem_info.mem_total/1000000 }}</b>GB</p>
+            <p>已使用：<b class="text-warning">{{ last_time.mem_info.mem_used/1000000 }}</b>GB</p>
+            <canvas id="mem-info" data-type="Line" data-list="{{ mem_info_list }}" class="span4"></canvas>
 
-    <div class="span8">
-        <p><b>内存使用率(%)</b></p>
-        <canvas id="mem-info" class="can" data-type="Line" data-list="{{ mem_info_list }}"></canvas>
+        </div>
     </div>
+    <canvas id="test" data-type="Bar" class="span4"></canvas>
+
+
 
 {% endblock %}
 
@@ -58,18 +66,36 @@
         $("canvas").each(function(){
 			var $canvas = $(this);
 			var ctx = this.getContext("2d");
-            var data = {
-                labels : [1,2,3,4,5,6,7,8,9,10],
-                datasets : [
-                    {
-                        fillColor : "rgba(151,187,205,0.5)",
-                        strokeColor : "rgba(151,187,205,1)",
-                        pointColor : "rgba(151,187,205,1)",
-                        pointStrokeColor : "#fff",
-                        data : $canvas.data('list')
-                    }
-                ]
-            };
+            if($canvas.data("type")=="Line"){
+                var data = {
+                    labels : [1,2,3,4,5,6,7,8,9,10],
+                    datasets : [
+                        {
+                            fillColor : "rgba(151,187,205,0.5)",
+                            strokeColor : "rgba(151,187,205,1)",
+                            pointColor : "rgba(151,187,205,1)",
+                            pointStrokeColor : "#fff",
+                            data : $canvas.data('list')
+                        }
+                    ]};
+            }
+            else if($canvas.data("type")=="Bar"){
+                var data = {
+                    labels : ["January","February","March","April","May","June","July"],
+                    datasets : [
+                        {
+                            fillColor : "rgba(220,220,220,0.5)",
+                            strokeColor : "rgba(220,220,220,1)",
+                            data : [65,59,90,81,56,55,40]
+                        },
+                        {
+                            fillColor : "rgba(151,187,205,0.5)",
+                            strokeColor : "rgba(151,187,205,1)",
+                            data : [28,48,40,19,96,27,100]
+                        }
+                    ]
+                };
+            }
 			var evalString = "new Chart(ctx)." + $canvas.data("type") + "(data);";
 			eval(evalString);
 		});

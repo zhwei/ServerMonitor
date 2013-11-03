@@ -37,8 +37,6 @@ def set_server_values(id, remote):
                         )
                   })
 
-
-
 def init_server(oid):
     '''
     after do_create_server() in sery.py
