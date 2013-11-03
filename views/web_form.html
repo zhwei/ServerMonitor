@@ -6,9 +6,9 @@
 
 {% import 'form' as form %}
 
-{% if ser_instance is undefined %}
-    {% set ser_instance = {'name':'', 'ip':'', 'description':'', 'date':''} %}
-    {% set active_page = "server_add" %}
+{% if web_instance is undefined %}
+    {% set web_instance = {'name':'', 'ip':'', 'description':'', 'date':''} %}
+    {% set active_page = "web_add" %}
     {% set legend = True %}
 {% endif %}
 
@@ -23,15 +23,15 @@
             <legend>修改网站[{{ web_instance.name }}]</legend>
             {% endif %}
             {{ form.input(name='name', label='网站名', value=web_instance.name) }}
-            {{ form.input(name='ip', label='网址', help_text="例如：http://gotit.asia/",
+            {{ form.input(name='url', label='网址', help_text="例如：http://gotit.asia/",
                 value=web_instance.ip) }}
             {{ form.textarea(name='description', label='描述', placeholder='必要信息',
                 value=web_instance.description) }}
             {{ form.input(name='keywords', label='关键词',
             help_text="判断网站是否正常时使用的关键词，确保网页中包含该字段，推荐使用标题，如果是多个关键词用英文逗号隔开。",
-                value=ser_instance.date) }}
-            {{ form.select(name='location', label='所在服务器', help_text='网站所在的服务器', options=locations,
-                default=web_instance.location_ID) }}
+                value=web_instance.keywords) }}
+            {{ form.select(name='server', label='所在服务器', help_text='网站所在的服务器', options=servers,
+                default=web_instance.server_ID) }}
         </fieldset>
             {{ form.submit(value="提交") }}
     </form>

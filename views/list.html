@@ -6,6 +6,9 @@
 {% elif locations %}
     {% set ths = ['地点','描述','其他记录','操作'] %}
     {% set active_page = "location_list" %}
+{% elif webs %}
+    {% set ths=['网站','网址','描述','实时状况'] %}
+    {% set active_page = "web_list" %}
 {% endif %}
 
 {% block title %}
@@ -48,6 +51,14 @@
                     <td><a href="/location/update/{{ location._id }}/">修改</a>|
                         <a href="/location/delete/{{ location._id }}/">删除</a></td>
                 </tr>
+            {% endfor %}
+        {% endif %}
+        {% if webs %}
+            {% for web in webs %}
+                <td><a href="/web/detail/{{ web._id }}/">{{ web.name }}</a></td>
+                <td><a href="{{ web.url }}" target="_blank">{{ web.url }}</a></td>
+                <td>{{ web.description }}</td>
+                <td><span class="label label-important">无法连接</span></td>
             {% endfor %}
         {% endif %}
 

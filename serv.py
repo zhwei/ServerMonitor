@@ -15,17 +15,25 @@ from bottle import (route,
 from bottle import (jinja2_view as view,
                     jinja2_template as template,)
 
+from pymongo import Connection
 from bson.objectid import ObjectId
 from socket import error as SocketError
 
-from tools import db
-from tools.db import find_one
+
 from tools import plat
 from conf import STATIC_DIR
+from tools.db import find_one
 from tools.proc_files import Proc
 from tools.work_flow import init_server
 
-temperatures, server, location, server_status = db.documents()
+con = Connection()
+mon = con.ServerMonitor
+
+web = mon.web
+server = mon.server
+location = mon.location
+temperatures = mon.temperature
+server_status = mon.server_status
 
 @route('/static/<filename:path>')
 def send_static(filename):
@@ -49,6 +57,10 @@ def list(name):
         servers = server.find()
     elif name == 'location':
         locations = location.find()
+    elif name == 'web':
+        webs = web.find()
+    else:
+        abort(404)
     return template('list', locals())
 
 @route('/server/add')
@@ -172,8 +184,37 @@ def update_location(oid):
 @route('/web/add')
 @route('/web/add', method='POST')
 def create_web():
+    """
+    create web page
+    """
+    if request.method == "POST":
+        _name = request.forms.get('name')
+        _url = request.forms.get('url')
+        _description = request.forms.get('description')
+        _keywords = request.forms.get('keywords')
+        _server_ID = request.forms.get('server')
+        web1 = {
+            'name':_name,
+            'url':_url,
+            'description': _description,
+            'keywords': _keywords,
+            'server_ID': _server_ID,
+        }
+        web.insert(web1)
+        redirect('/web/list')
 
+    servers=[(s['_id'],s['name']) for s in server.find()]
     return template('web_form', locals())
+
+@route('/web/detail/<oid>/')
+def detail_web(oid):
+    wb = web.find_one({'_id':ObjectId(oid)})
+    try:
+        _condition = {'_id':ObjectId(wb['server_ID'])}
+        wb['server'] = server.find_one(_condition)['name']
+    except:
+        wb['server'] = u'<span style="color:red;">服务器未找到'
+    return template('detail_web', locals())
 
 @route('/<item>/delete/<oid>/')
 @route('/<item>/delete/<oid>/', method="POST")
@@ -186,6 +227,8 @@ def delete(item, oid):
         obj, main = server, 'name'
     elif item == "location":
         obj, main = location, 'location'
+    elif item == "web":
+        obj, main = web, 'web'
     else:
         abort(404)
     if request.method == 'POST':
