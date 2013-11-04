@@ -10,8 +10,8 @@ from socket import error as SocketError
 import pymongo
 from bson import ObjectId
 
-from tools.db import documents, create_server_status, set_server
-from tools.work_flow import connect
+from tools.db import documents, set_server
+from tools.work_flow import connect, create_server_status, create_web_status
 
 temperatures, server, location, server_status = documents()
 
@@ -37,7 +37,7 @@ def main_thread():
 
         servers = server.find()
         for s in servers:
-            _task = ('server', s['_id'], s['ip'])
+            _task = ('server', s['_id'])
             with lock:
                 queue.put(_task)
 
@@ -59,25 +59,14 @@ def daemon_thread():
     """
     global queue
     for i in range(queue.qsize()):
-        obj, oid, oip = queue.get()
-        try:
-            remote = connect(oip)
-            dic = {
-                'server_ID': oid,
-                'datetime': datetime.datetime.now(),
-                'mem_info': remote.mem_info(),
-                'cpu_usage': remote.cpu_usage(),
-                'net_stat': remote.net_stat(),
-                'disk_stat': remote.disk_stat(),
-                'up_time': remote.uptime_stat(),
-                'load_avg': remote.load_avg(),
-                }
-            set_server(oid, {'status_now': 0,}) # update "server
-            create_server_status(dic)
-            print('update server %s' % oid)
-        except SocketError:
-            dic = {'status_now': 1,} #无法连接
-            set_server(oid, dic)
+        obj, oid = queue.get()
+
+        if obj == 'server':
+            create_server_status(oid)
+        elif obj == 'web':
+            create_web_status(oid)
+        else:
+            print('obj wrong')
 
 queue = Queue()
 main_thread()

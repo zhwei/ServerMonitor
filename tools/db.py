@@ -29,9 +29,25 @@ def set_server(id, dic):
     server.update({'_id':ObjectId(id)},
                   {'$set': dic})
 
-def create_server_status(dic):
+def set_web(id, dic):
+    """
+    set web values in mongodb
+    """
+    server = db.web
+    server.update({'_id':ObjectId(id)},
+                  {'$set': dic})
+
+def set_server_status(dic):
     """
     server status values in mongodb
     """
     _status = db.server_status
+    _status.insert(dic)
+
+
+def set_web_status(dic):
+    """
+    server web values in mongodb
+    """
+    _status = db.web_status
     _status.insert(dic)
