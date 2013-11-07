@@ -7,12 +7,14 @@ import threading
 from Queue import Queue
 from socket import error as SocketError
 
-import pymongo
+from pymongo import Connection
 from bson import ObjectId
 
 from tools.db import documents, set_server
 from tools.work_flow import connect, create_server_status, create_web_status
 
+con = Connection()
+db = con.ServerMonitor
 temperatures, server, location, server_status = documents()
 
 lock = threading.RLock()
@@ -41,12 +43,17 @@ def main_thread():
             with lock:
                 queue.put(_task)
 
+        for w in db.web.find():
+            _task = ('web', w['_id'])
+            with lock:
+                queue.put(_task)
+
         daemon = threading.Thread(name='daemon thread %s' % time.time(),
                                   target=daemon_thread())
         daemon.setDaemon(True)
         daemon.start()
-        print('%s update value' % daemon.name)
-        time.sleep(50)
+        #print('%s update value' % daemon.name)
+        time.sleep(100)
 
 
 def daemon_thread():
@@ -62,8 +69,10 @@ def daemon_thread():
         obj, oid = queue.get()
 
         if obj == 'server':
+            print "this is server %s" % oid
             create_server_status(oid)
         elif obj == 'web':
+            print "This is web %s" % oid
             create_web_status(oid)
         else:
             print('obj wrong')

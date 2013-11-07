@@ -7,6 +7,7 @@ from bson import ObjectId
 con = Connection()
 db = con.ServerMonitor
 
+
 def documents():
     """
     return documents form mongodb one time

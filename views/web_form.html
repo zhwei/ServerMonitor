@@ -24,7 +24,7 @@
             {% endif %}
             {{ form.input(name='name', label='网站名', value=web_instance.name) }}
             {{ form.input(name='url', label='网址', help_text="例如：http://gotit.asia/",
-                value=web_instance.ip) }}
+                value=web_instance.url) }}
             {{ form.textarea(name='description', label='描述', placeholder='必要信息',
                 value=web_instance.description) }}
             {{ form.input(name='keywords', label='关键词',

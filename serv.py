@@ -27,13 +27,13 @@ from tools.proc_files import Proc
 from tools.work_flow import init_server
 
 con = Connection()
-mon = con.ServerMonitor
+db = con.ServerMonitor
 
-web = mon.web
-server = mon.server
-location = mon.location
-temperatures = mon.temperature
-server_status = mon.server_status
+web = db.web
+server = db.server
+location = db.location
+temperatures = db.temperature
+server_status = db.server_status
 
 @route('/static/<filename:path>')
 def send_static(filename):
@@ -102,22 +102,24 @@ def create_server():
     locations=[(l['_id'],l['location']) for l in location.find()]
     return template('server_form', locals())
 
-@route('/server/init/<oid>/')
-def init_server_info(oid):
+from tools.work_flow import init_web
+
+@route('/<item>/init/<oid>/')
+def init_info(item,oid):
     try:
-        init_server(oid)
+        if item == "server":
+            init_server(oid)
+        elif item == "web":
+            init_web(oid)
+        else:
+            abort(404)
     except SocketError:
-        return 'ip and port error'
-    redirect('/server/detail/%s/' % oid)
+        return index_error('无法连接，请检查网络或者配置是否正确。')
+    redirect('/%s/detail/%s/' %(item, oid))
 
 @route('/server/update/<oid>/',method='GET')
 @route('/server/update/<oid>/',method='POST')
 def update_server(oid):
-    ser_instance = server.find_one({'_id':ObjectId(oid)})
-    locations=[]
-    for l in location.find():
-        locations.append((str(l['_id']),l['location']))
-
     if request.method == "POST":
         _name = request.forms.get('name')
         _ip = request.forms.get('ip')
@@ -134,6 +136,10 @@ def update_server(oid):
                         }
                       },)
         return redirect('/server/list')
+
+    ser_instance = server.find_one({'_id':ObjectId(oid)})
+    locations=[(str(l['_id']),l['location']) for l in location.find()]
+
     return template('server_form', locals())
 
 @route('/server/detail/<id>/')
@@ -192,18 +198,43 @@ def create_web():
         _url = request.forms.get('url')
         _description = request.forms.get('description')
         _keywords = request.forms.get('keywords')
+        _keys = [i.strip() for i in _keywords.split(',') if i.strip() is not '']
         _server_ID = request.forms.get('server')
         web1 = {
             'name':_name,
             'url':_url,
             'description': _description,
-            'keywords': _keywords,
+            'keywords': _keys,
             'server_ID': _server_ID,
         }
         web.insert(web1)
         redirect('/web/list')
 
     servers=[(s['_id'],s['name']) for s in server.find()]
+    return template('web_form', locals())
+
+@route('/web/update/<oid>/')
+@route('/web/update/<oid>/', method='POST')
+def update_web(oid):
+    if request.method == "POST":
+        _name = request.forms.get('name')
+        _url = request.forms.get('url')
+        _description = request.forms.get('description')
+        _keywords = request.forms.get('keywords')
+        _keys = [i.strip() for i in _keywords.split(',') if i.strip() is not '']
+        _server_ID = request.forms.get('server')
+        web.update({'_id':ObjectId(oid)},
+                   {'$set':{
+                    'name':_name,
+                    'url':_url,
+                    'description': _description,
+                    'keywords': _keys,
+                    'server_ID': _server_ID,
+                }})
+        redirect('/web/list')
+    web_instance=web.find_one({'_id':ObjectId(oid)})
+    web_instance['keywords']=','.join(web_instance['keywords'])
+    servers=[(str(s['_id']),s['name']) for s in db.server.find()]
     return template('web_form', locals())
 
 @route('/web/detail/<oid>/')
@@ -213,7 +244,7 @@ def detail_web(oid):
         _condition = {'_id':ObjectId(wb['server_ID'])}
         wb['server'] = server.find_one(_condition)['name']
     except:
-        wb['server'] = u'<span style="color:red;">服务器未找到'
+        wb['server'] = u'<div class="alert alert-block">服务器未找到</div>'
     return template('detail_web', locals())
 
 @route('/<item>/delete/<oid>/')
@@ -228,7 +259,7 @@ def delete(item, oid):
     elif item == "location":
         obj, main = location, 'location'
     elif item == "web":
-        obj, main = web, 'web'
+        obj, main = web, 'name'
     else:
         abort(404)
     if request.method == 'POST':

@@ -7,6 +7,7 @@
 
     <div class="hero-unit">
         <h1>{{ wb.name }}</h1>
+        <br/>
         <p>{{ wb.description }}</p>
         <a href="{{ wb.url }}" target="_blank" class="btn btn-large btn-inverse">访问&nbsp;&nbsp;&raquo;</a>
     </div>
@@ -16,6 +17,21 @@
         <p><b>{{ wb.server }}&nbsp;</b></p>
         <p><a href="/server/detail/{{ wb.server_ID }}/">查看服务器详细信息</a></p>
     </div>
+    <div class="span4">
+        <h3>首页类型</h3>
+        <p>标题：<b>{{ wb.title }}</b></p>
+        <p>编码：<b>{{ wb.encoding }}</b></p>
+        <p>页面类型：<b>{{ wb.content_type }}</b></p>
+    </div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="row-fluid">
+        <div class="span9 alert alert-error">
+            <p><b>谨慎操作</b></p>
+            <a href="/web/init/{{ wb._id }}/" class="btn">初始化信息</a>
+            <a href="/web/update/{{ wb._id }}/" class="btn btn-warning">修改信息</a>
+            <a href="/web/delete/{{ wb._id }}/" class="btn btn-danger">删除网站</a>
+        </div>
     </div>
 
 

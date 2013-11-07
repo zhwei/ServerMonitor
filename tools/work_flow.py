@@ -14,14 +14,14 @@ from db import documents, set_server, set_server_status, set_web, set_web_status
 temperatures, server, location, server_status = documents()
 
 con = Connection()
-mon = con.ServerMonitor
+db = con.ServerMonitor
 
-web = mon.web
-server = mon.server
-location = mon.location
-temperatures = mon.temperature
-server_status = mon.server_status
-web_status = mon.web_status
+web = db.web
+#server = mon.server
+#location = mon.location
+#temperatures = mon.temperature
+#server_status = mon.server_status
+web_status = db.web_status
 
 def get_server():
     servers = server.find()
@@ -34,19 +34,11 @@ def connect(ip):
         return 0
     return RemoteServer
 
-def set_server_values(id, remote):
-    """
-    set server values in mongodb
-    """
-    server.update({'_id':ObjectId(id)},
-                  {'$set':
-                       dict(
-                            system = remote.get_system(),
-                            node = remote.get_node(),
-                            uname = remote.get_uname(),
-                            cpu_info = remote.cpu_info()
-                        )
-                  })
+#def set_server_values(id, remote):
+#    """
+#    set server values in mongodb
+#    """
+
 
 def init_server(oid):
     '''
@@ -55,7 +47,30 @@ def init_server(oid):
     '''
     a = server.find_one({'_id':ObjectId(oid)})
     remote = connect(a['ip'])
-    set_server_values(oid, remote)
+    server.update({'_id':ObjectId(oid)},
+                  {'$set':
+                       dict(
+                            node = remote.get_node(),
+                            uname = remote.get_uname(),
+                            cpu_info = remote.cpu_info(),
+                            system = remote.get_system(),
+                        )
+                  })
+
+def init_web(oid):
+    """
+    set web values in mongodb
+    """
+    target = web.find_one({"_id":ObjectId(oid)})
+    monitor = WebMonitor(target['url'])
+    db.web.update({'_id':ObjectId(oid)},
+                  {'$set':
+                       dict(
+                            title = monitor.get_title(),
+                            encoding = monitor.get_encoding(),
+                            content_type=monitor.content_type(),
+                        )
+                  })
 
 def create_server_status(oid):
     """
@@ -67,13 +82,13 @@ def create_server_status(oid):
         remote = connect(oip)
         dic = {
             'server_ID': oid,
-            'datetime': datetime.datetime.now(),
+            'load_avg': remote.load_avg(),
             'mem_info': remote.mem_info(),
-            'cpu_usage': remote.cpu_usage(),
             'net_stat': remote.net_stat(),
+            'cpu_usage': remote.cpu_usage(),
             'disk_stat': remote.disk_stat(),
             'up_time': remote.uptime_stat(),
-            'load_avg': remote.load_avg(),
+            'datetime': datetime.datetime.now(),
             }
         set_server(oid, {'status_now': 0,}) # update "server
         set_server_status(dic)
@@ -82,13 +97,25 @@ def create_server_status(oid):
         dic = {'status_now': 1,} #无法连接
         set_server(oid, dic)
 
+from web_monitor import WebMonitor
+
 def create_web_status(oid):
     try:
-        ourl = web.find({"_id":ObjectId(oid)})
-
+        target = web.find_one({"_id":ObjectId(oid)})
+        monitor = WebMonitor(target['url'])
         dic = {
             'web_ID': oid,
-            'keywords': {'12':1}
+            'title': monitor.get_title(),
+            'encoding': monitor.get_encoding(),
+            'total_name': monitor.total_time(),
+            'content_type': monitor.content_type(),
+            'name_look_up': monitor.name_look_up(),
+            'connect_time': monitor.connect_time(),
+            'status_code': monitor.get_status_code(),
+            'per_transfer_time': monitor.per_transfer_time(),
+            'content_encoding': monitor.get_content_encoding(),
+            'start_transfer_time': monitor.start_transfer_time(),
+            'keywords': monitor.contain_keyword(target['keywords']),
         }
         set_web(oid, {'status_now': 0,})
         set_web_status(dic)

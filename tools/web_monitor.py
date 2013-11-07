@@ -28,7 +28,7 @@ class WebMonitor:
         """Init the pyCurl
         """
         _curl = pycurl.Curl()
-        _curl.setopt(pycurl.URL, self.url)
+        _curl.setopt(pycurl.URL, self.url.encode('utf-8'))
         _curl.perform()
         return _curl
 
@@ -54,6 +54,24 @@ class WebMonitor:
         """
         return self.req().text
 
+    def contain_keyword(self, keyword):
+        """ this doc whether include keyword
+        input could be str or list
+        if list, the output is the words could not be found
+        """
+        if isinstance(keyword, list) or isinstance(keyword, tuple):
+            #print self.get_encoding()
+            res=[k for k in keyword if k not in self.get_content()]
+            if len(res)==0:
+                return True
+            else:
+                return res
+        else:
+            if keyword in self.get_content():
+                return True
+            else:
+                return False
+
     def get_title(self):
         """Get title
         in <title></title>
@@ -66,6 +84,15 @@ class WebMonitor:
         eg: utf-8
         """
         return self.req().encoding
+
+    def get_content_encoding(self):
+        """ Get content encoding
+        eg: gzip
+        """
+        try:
+            return self.req().headers['content-encoding']
+        except KeyError:
+            return None
 
     def name_look_up(self):
         """ time about name resolving
@@ -108,17 +135,21 @@ class WebMonitor:
         """ Connect type
         返回内容的类型 eg：text/html; charset=utf-8
         """
+        return self.__curl().getinfo(pycurl.CONTENT_TYPE)
 
     def test(self):
-
         return self.__curl().getinfo(pycurl.CONTENT_TYPE)
 
 
 
-w = WebMonitor('http://jwch.sdut.edu.cn')
+#w = WebMonitor('http://jwch.sdut.edu.cn')
 #print w.get_status_code()
 #print w.get_content()
 #print w.get_title()
 #print w.name_look_up()
 #print w.test()
-print w.get_encoding()
+#print w.get_encoding()
+#if w.contain_keyword(('首页','sdut')) == True:
+#    print 'aaa'
+
+
