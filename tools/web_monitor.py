@@ -8,6 +8,7 @@ http://curl.haxx.se/libcurl/c/curl_easy_getinfo.html
 
 import re
 import pycurl
+import chardet
 import requests
 from BeautifulSoup import BeautifulSoup
 
@@ -47,7 +48,16 @@ class WebMonitor:
     def get_content(self):
         """ Get page content
         """
-        return self.req().content
+        content=self.req().content
+        encod = chardet.detect(content)['encoding']
+        print encod
+        #if encod != 'utf-8':
+        content=content.decode(encod)
+        print chardet.detect(content)
+        #else:
+        return content
+
+
 
     def get_text(self):
         """Get page text
@@ -143,6 +153,7 @@ class WebMonitor:
 
 
 #w = WebMonitor('http://jwch.sdut.edu.cn')
+#w = WebMonitor('http://baidu.com')
 #print w.get_status_code()
 #print w.get_content()
 #print w.get_title()
@@ -151,5 +162,5 @@ class WebMonitor:
 #print w.get_encoding()
 #if w.contain_keyword(('首页','sdut')) == True:
 #    print 'aaa'
-
+#print chardet.detect(w.get_content())['encoding']
 

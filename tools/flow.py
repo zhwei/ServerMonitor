@@ -53,6 +53,7 @@ def main_thread():
         daemon.setDaemon(True)
         daemon.start()
         #print('%s update value' % daemon.name)
+        print "wait..."
         time.sleep(100)
 
 
