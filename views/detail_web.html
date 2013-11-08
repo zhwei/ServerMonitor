@@ -22,11 +22,12 @@
         <p>标题：<b>{{ wb.title }}</b></p>
         <p>编码：<b>{{ wb.encoding }}</b></p>
         <p>页面类型：<b>{{ wb.content_type }}</b></p>
+        <p>关键词测试：<b>{{ wb.keywords }}</b></p>
     </div>
     </div>
     <div class="clearfix"></div>
     <div class="row-fluid">
-        <div class="span9 alert alert-error">
+        <div class="alert alert-block">
             <p><b>谨慎操作</b></p>
             <a href="/web/init/{{ wb._id }}/" class="btn">初始化信息</a>
             <a href="/web/update/{{ wb._id }}/" class="btn btn-warning">修改信息</a>
