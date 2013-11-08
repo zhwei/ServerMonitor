@@ -12,6 +12,13 @@
 {% endif %}
 
 {% block content %}
+
+<ul class="breadcrumb">
+    <li><a href="/">网站后台</a><span class="divider">/</span></li>
+    <li><a href="/location/list">机房</a><span class="divider">/</span></li>
+    <li class="active">创建机房<span class="divider">/</span></li>
+</ul>
+
 <div>
     <form action="" method="POST" name="form" class="form">
         {{ form.input(name='location', label='机房名称', value=loc_instance.location) }}

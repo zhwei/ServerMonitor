@@ -88,6 +88,7 @@ def create_server_status(oid):
             'cpu_usage': remote.cpu_usage(),
             'disk_stat': remote.disk_stat(),
             'up_time': remote.uptime_stat(),
+            'partition': remote.partition(),
             'datetime': datetime.datetime.now(),
             }
         set_server(oid, {'status_now': 0,}) # update "server
@@ -107,7 +108,7 @@ def create_web_status(oid):
             'web_ID': oid,
             'title': monitor.get_title(),
             'encoding': monitor.get_encoding(),
-            'total_name': monitor.total_time(),
+            'total_time': monitor.total_time(),
             'content_type': monitor.content_type(),
             'name_look_up': monitor.name_look_up(),
             'connect_time': monitor.connect_time(),
@@ -116,6 +117,7 @@ def create_web_status(oid):
             'content_encoding': monitor.get_content_encoding(),
             'start_transfer_time': monitor.start_transfer_time(),
             'keywords': monitor.contain_keyword(target['keywords']),
+            'datetime': datetime.datetime.now(),
         }
         set_web(oid, {'status_now': 0,})
         set_web_status(dic)

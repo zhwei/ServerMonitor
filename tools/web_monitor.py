@@ -11,6 +11,10 @@ import pycurl
 import chardet
 import requests
 from BeautifulSoup import BeautifulSoup
+try:
+    import cStringIO as StringIO
+except ImportError:
+    import StringIO
 
 class WebMonitor:
 
@@ -29,6 +33,8 @@ class WebMonitor:
         """Init the pyCurl
         """
         _curl = pycurl.Curl()
+        _buf = StringIO.StringIO()
+        _curl.setopt(pycurl.WRITEFUNCTION, _buf.write)
         _curl.setopt(pycurl.URL, self.url.encode('utf-8'))
         _curl.perform()
         return _curl
@@ -50,10 +56,10 @@ class WebMonitor:
         """
         content=self.req().content
         encod = chardet.detect(content)['encoding']
-        print encod
+        #print encod
         #if encod != 'utf-8':
         content=content.decode(encod)
-        print chardet.detect(content)
+        #print chardet.detect(content)
         #else:
         return content
 

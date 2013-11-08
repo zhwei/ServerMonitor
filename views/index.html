@@ -1,20 +1,21 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    {{ name }}
+教育技术中心服务监控后台
 {% endblock %}
 
 {% block content %}
     <ul class="breadcrumb">
         <li class="active">网站后台<span class="divider">/</span></li>
+        <li><a href="/server/list">服务器</a><span class="divider">|</span></li>
+        <li><a href="/web/list">网站</a><span class="divider">|</span></li>
+        <li><a href="/location/list">机房</a></li>
     </ul>
-<h1>Index</h1>
 
-    <ul>
-        <li><a href="/temp">temp</a></li>
-        <li><a href="/funcs">其他功能</a></li>
-        <li><a href="/list">list</a></li>
-        <li><a href="/history">history</a></li>
-    </ul>
+    <div class="hero-unit">
+        <h1>教育技术中心服务监控</h1>
+        <br/>
+        <p>请谨慎操作！</p>
+    </div>
 
 {% endblock %}

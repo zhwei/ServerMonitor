@@ -59,11 +59,9 @@
           <a class="brand" href="/">ServerMonitor</a>
           <div class="nav-collapse collapse">
             <ul class="nav">
-              <li><a href="/">Home</a></li>
               {% block nav %}
               {% endblock %}
-              <li><a href="/temp">温度</a></li>
-              <li><a href="">Contact</a></li>
+              <li><a href="/temp">机房温度</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
@@ -86,7 +84,6 @@
                             ('','','机房'),
                             ('/location/list','location_list','机房列表'),
                             ('/location/add','location_add','添加机房'),
-                            ('/temp','temp','机房温度'),
                         ] -%}
                         {% set active_page = active_page|default('admin_index') -%}
                         {% for href, id, caption in navigation_bar %}

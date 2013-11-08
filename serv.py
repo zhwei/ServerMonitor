@@ -20,10 +20,8 @@ from bson.objectid import ObjectId
 from socket import error as SocketError
 
 
-from tools import plat
 from conf import STATIC_DIR
 from tools.db import find_one
-from tools.proc_files import Proc
 from tools.work_flow import init_server
 
 con = Connection()
@@ -41,7 +39,7 @@ def send_static(filename):
 
 @route("/")
 def index():
-    return template('index',name="hello world!")
+    return template('index')
 
 
 def index_error(content):
@@ -54,11 +52,14 @@ def list(name):
     list server
     """
     if name == 'server':
-        servers = server.find()
+        servers = db.server.find()
     elif name == 'location':
-        locations = location.find()
+        locations = db.location.find()
     elif name == 'web':
-        webs = web.find()
+        #webs = db.web.find()
+        webs = [i for i in db.web.find()]
+        for i in webs:
+            i['server_name']=db.server.find_one({"_id":ObjectId(i['server_ID'])})['name']
     else:
         abort(404)
     return template('list', locals())
@@ -142,14 +143,29 @@ def update_server(oid):
 
     return template('server_form', locals())
 
-@route('/server/detail/<id>/')
-def detail_server(id):
-    ser = server.find_one({'_id':ObjectId(id)})
+@route('/server/detail/<oid>/')
+def detail_server(oid):
+    ser = server.find_one({'_id':ObjectId(oid)})
     try:
         condition = {'_id':ObjectId(ser['location_ID'])}
         ser['location'] = location.find_one(condition)['location']
     except:
         ser['location'] = u'<span style="color:red;">机房未找到'
+
+    status = server_status.find({'server_ID':ObjectId(oid)}).sort('datetime', -1).limit(10)
+    status_list = [i for i in status]
+    try:
+        cpu_usage_list = [i['cpu_usage']*100 for i in status_list]
+        mem_info_list = [i['mem_info']['mem_used']/i['mem_info']['mem_total']*100 for i in status_list]
+        up_time = status_list[0]['up_time']
+        load_avg_1 = [float(i['load_avg']['lavg_1']) for i in status_list]
+        load_avg_5 = [float(i['load_avg']['lavg_5']) for i in status_list]
+        load_avg_15 = [float(i['load_avg']['lavg_15']) for i in status_list]
+        last_time = status_list[0]
+    except IndexError:
+        return index_error('暂无历史记录<a href="/server/delete/%s/">删除</a>'% oid)
+        #pass
+
     return template('detail_server', locals())
 
 @route('/location/add')
@@ -239,10 +255,18 @@ def update_web(oid):
 
 @route('/web/detail/<oid>/')
 def detail_web(oid):
-    wb = web.find_one({'_id':ObjectId(oid)})
+    wb = db.web.find_one({'_id':ObjectId(oid)})
+    status = db.web_status.find({'web_ID':ObjectId(oid)}).sort('datetime', -1).limit(10)
+    status_list = [i for i in status]
+
+    total_time_list = [i['total_time'] for i in status_list]
+    connect_time_list = [i['connect_time'] for i in status_list]
+    name_look_up_list = [i['name_look_up'] for i in status_list]
+
+    last_status = status_list[0]
     try:
         _condition = {'_id':ObjectId(wb['server_ID'])}
-        wb['server'] = server.find_one(_condition)['name']
+        wb['server'] = db.server.find_one(_condition)['name']
     except:
         wb['server'] = u'<div class="alert alert-block">服务器未找到</div>'
     return template('detail_web', locals())
@@ -255,81 +279,84 @@ def delete(item, oid):
     need the collection name and the id
     """
     if item == "server":
-        obj, main = server, 'name'
+        obj, main = db.server, 'name'
+        if db.web.find({'server_ID':oid}).count() != 0:
+            return index_error('该服务器包含可用网站，请先迁移网站！')
     elif item == "location":
-        obj, main = location, 'location'
+        obj, main = db.location, 'location'
+        if db.server.find({"location_ID":oid}).count() != 0:
+            return index_error('该机房包含可用服务器，请先迁移服务器！')
     elif item == "web":
-        obj, main = web, 'name'
+        obj, main = db.web, 'name'
     else:
         abort(404)
     if request.method == 'POST':
         post_id = request.forms.get('oid')
-        print type(post_id), post_id
         obj.remove({"_id":ObjectId(post_id)})
         redirect('../../list')
     name = find_one(obj, oid)[main]
     return template('confirm_delete', name=name, oid=oid)
 
 
-@route('/history/<oid>/')
-def history(oid):
-    """
-    history about one server
-    """
-    ser = find_one(server, oid)
-    status = server_status.find({'server_ID':ObjectId(oid)}).sort('datetime', -1).limit(10)
-    status_list = [i for i in status]
-    try:
-        cpu_usage_list = [i['cpu_usage']*100 for i in status_list]
-        mem_info_list = [i['mem_info']['mem_used']/i['mem_info']['mem_total']*100 for i in status_list]
-        up_time = status_list[0]['up_time']
-        load_avg_1 = [float(i['load_avg']['lavg_1']) for i in status_list]
-        load_avg_5 = [float(i['load_avg']['lavg_5']) for i in status_list]
-        load_avg_15 = [float(i['load_avg']['lavg_15']) for i in status_list]
-        last_time = status_list[0]
-    except IndexError:
-        return index_error('暂无历史记录')
-    return template('history', locals())
+#@route('/history/<oid>/')
+#def history(oid):
+#    """
+#    history about one server
+#    """
+#    ser = find_one(server, oid)
+#    status = server_status.find({'server_ID':ObjectId(oid)}).sort('datetime', -1).limit(10)
+#    status_list = [i for i in status]
+#    try:
+#        cpu_usage_list = [i['cpu_usage']*100 for i in status_list]
+#        mem_info_list = [i['mem_info']['mem_used']/i['mem_info']['mem_total']*100 for i in status_list]
+#        up_time = status_list[0]['up_time']
+#        load_avg_1 = [float(i['load_avg']['lavg_1']) for i in status_list]
+#        load_avg_5 = [float(i['load_avg']['lavg_5']) for i in status_list]
+#        load_avg_15 = [float(i['load_avg']['lavg_15']) for i in status_list]
+#        last_time = status_list[0]
+#    except IndexError:
+#        return index_error('暂无历史记录')
+#    return template('history', locals())
+#
+#
+#@route('/commands')
+#@route('/commands', method="POST")
+#def commands():
+#    if request.method == "POST":
+#        com = request.forms.get('com')
+#        return "<form method='POST'><input type='text' cols=100 name='com' /><input type='submit' /></form><br />" + co.getoutput(com)
+#    return "<form method='POST'><input type='text' cols=100 name='com' /><input type='submit' /></form>"
+#
 
+#@route("/funcs")
+#def funcs():
+#    p = Proc()
+#    mem_info = p.mem_info()
+#    mem_usage = mem_info['mem_used']/mem_info['mem_total']
+#    cpu_usage = p.cpu_usage()
+#    print cpu_usage
+#    return template('funcs', locals())
 
-@route('/commands')
-@route('/commands', method="POST")
-def commands():
-    if request.method == "POST":
-        com = request.forms.get('com')
-        return "<form method='POST'><input type='text' cols=100 name='com' /><input type='submit' /></form><br />" + co.getoutput(com)
-    return "<form method='POST'><input type='text' cols=100 name='com' /><input type='submit' /></form>"
-
-
-@route("/funcs")
-def funcs():
-    p = Proc()
-    mem_info = p.mem_info()
-    mem_usage = mem_info['mem_used']/mem_info['mem_total']
-    cpu_usage = p.cpu_usage()
-    print cpu_usage
-    return template('funcs', locals())
-
-@route('/list')
-def lists():
-    p = Proc()
-    load_avg = p.load_avg()
-    process_num = p.process_num()
-    up_time = p.uptime_stat()
-    disk_stat = p.disk_stat()
-    cpu_info = p.cpu_info()
-    net_stat = p.net_stat()
-
-    uname = plat.get_uname()
-    system = plat.get_system()
-
-    node = plat.get_node()
-    distribution = plat.get_linux_distribution()
-
-    import platform as pl
-    pl = pl
-
-    return template('others', locals())
+#@route('/list')
+#def lists():
+#    p = Proc()
+#    load_avg = p.load_avg()
+#    process_num = p.process_num()
+#    up_time = p.uptime_stat()
+#    disk_stat = p.disk_stat()
+#    cpu_info = p.cpu_info()
+#    net_stat = p.net_stat()
+#
+#    uname = plat.get_uname()
+#    system = plat.get_system()
+#
+#    node = plat.get_node()
+#    distribution = plat.get_linux_distribution()
+#
+#    import platform as pl
+#    pl = pl
+#
+#    return template('others', locals())
 
 @route("/temp")
 def temperature():

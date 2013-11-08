@@ -7,7 +7,7 @@
     {% set ths = ['地点','描述','其他记录','操作'] %}
     {% set active_page = "location_list" %}
 {% elif webs %}
-    {% set ths=['网站','网址','描述','实时状况'] %}
+    {% set ths=['网站','所在服务器','描述','实时状况'] %}
     {% set active_page = "web_list" %}
 {% endif %}
 
@@ -16,6 +16,11 @@
 {% endblock %}
 
 {% block content %}
+
+<ul class="breadcrumb">
+    <li><a href="/">网站后台</a><span class="divider">/</span></li>
+    <li class="active">{{ ths[0] }}<span class="divider">/</span></li>
+</ul>
 
 <div>
     <table class="table table-hover">
@@ -57,9 +62,17 @@
             {% for web in webs %}
                 <tr>
                     <td><a href="/web/detail/{{ web._id }}/">{{ web.name }}</a></td>
-                    <td><a href="{{ web.url }}" target="_blank">{{ web.url }}</a></td>
+                    <td><a href="/server/detail/{{ web.server_ID }}/" target="_blank">{{ web.server_name }}</a></td>
                     <td>{{ web.description }}</td>
-                    <td><span class="label label-important">无法连接</span></td>
+                    <td>
+                    {% if web.status_now == 0 %}
+                        <span class="label label-success">正常</span>
+                    {% elif web.status_now == 1 %}
+                        <span class="label label-important">无法连接</span>
+                    {% else %}
+                        <span class="label">等候初始化</span>
+                    {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
         {% endif %}

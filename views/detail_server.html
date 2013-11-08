@@ -6,60 +6,164 @@
 
 {% block content %}
 
-<div>
+<ul class="breadcrumb">
+    <li><a href="/">网站后台</a><span class="divider">/</span></li>
+    <li><a href="/server/list">服务器</a><span class="divider">/</span></li>
+    <li class="active">{{ ser.name }}<span class="divider">/</span></li>
+</ul>
 
-    <dl class="dl-horizontal">
-        <dt>服务器名称</dt>
-        <dd>{{ ser.name }}</dd>
-        <dt>所在机房</dt>
-        <dd>{{ ser.location }}</dd>
-        <dt>IP:PORT</dt>
-        <dd>{{ ser.ip }}</dd>
-        <dt>描述</dt>
-        <dd>{{ ser.description }}</dd>
-        <dt>购进日期</dt>
-        <dd>{{ ser.date }}</dd>
-        <dt>操作系统</dt>
-        <dd>{{ ser.system }}</dd>
-        <dt>主机名</dt>
-        <dd>{{ ser.host }}</dd>
-        <dt>处理器单元信息</dt>
+    <div class="hero-unit">
+        <code>服务器</code>
+        <h1>{{ ser.name }}</h1>
+        <br/>
+        <p>{{ ser.description }}</p>
+    </div>
+
+    <div class="row-fluid">
+        <p><b>正常运行时间：</b></p>
+        <h2><span class="text-success">{{ up_time.day }}</span>天
+        <span class="text-info">{{ up_time.hour }}</span>小时
+        <span class="text-warning">{{ up_time.minute }}</span>分钟
+        <span class="text-error">{{ up_time.second }}</span>秒</h2>
+        <br/>
+    </div>
+
+    <div class="row-fluid">
+        <div class="span4">
+            <p><b>所在机房</b></p>
+            <p><b class="text-info">{{ ser.location }}</b></p>
+        </div>
+        <div class="span4">
+            <p><b>购进日期</b></p>
+            <p><b class="text-error">{{ ser.date }}</b></p>
+        </div>
+
+    </div>
+
+    <div class="row-fluid">
+        <div class="span4">
+            <h4>系统信息</h4>
+            <p>主机名：<b>{{ ser.host }}</b></p>
+            <p>操作系统：<b>{{ ser.system }}</b></p>
+            <p>发行版(具体)：<b>{{ ser.uname[2] }}</b></p>
+            <p><b></b></p>
+        </div>
+        <div class="span4">
+            <h4>处理器单元信息</h4>
             {% for cpu in ser.cpu_info %}
-                <dd>{{ cpu }}</dd>
+                <p>{{ cpu }}</P>
             {% endfor %}
-        <dt>系统详细信息</dt>
-        {% for uname in ser.uname %}
-            <dd>{{ uname }}</dd>
-        {% endfor %}
-        <dt></dt>
-        <dd></dd>
-        <dt></dt>
-        <dt><a href="/server/init/{{ ser._id }}/">初始化</a></dt>
-        <dt><a href="/history/{{ ser._id }}/">历史</a></dt>
-        <dt><a href="/server/update/{{ ser._id }}/">修改</a></dt>
-        <dt><a href="/server/delete/{{ ser._id }}/">删除</a></dt>
-        <dd></dd>
-    </dl>
+        </div>
+    </div>
 
-{#    <p>{{ ser.name }}</p>#}
-{##}
-{#    <p>{{ ser.ip }}</p>#}
-{##}
-{#    <p>{{ ser.description }}</p>#}
-{##}
-{#    <p>{{ ser.date }}</p>#}
-{##}
-{#    <p>{{ ser.cpu_info }}</p>#}
-{##}
-{#    <p>{{ ser.uname }}</p>#}
-{##}
-{#    <p>{{ ser.node }}</p>#}
-{##}
-{#    <p>{{ ser }}</p>#}
-{##}
-{#    <p></p>#}
-{##}
-{#    <p></p>#}
-</div>
 
+    <div class="row-fluid">
+        <div class="span4">
+            <h3><b>流量监控</b></h3>
+            {% set net_stat = last_time.net_stat %}
+            {% for net in net_stat.keys() %}
+                <p>网卡：<b>{{ net }}</b></p>
+                <p>上行流量：<b class="text-success">{{ net_stat[net].rx }}</b>GB</p>
+                <p>下载流量：<b class="text-info">{{ net_stat[net].rx }}</b>GB</p>
+            {% endfor %}
+        </div>
+        <div class="span4">
+            <h3><b>磁盘状况</b></h3>
+            {% set disk_stat = last_time.disk_stat %}
+            <p>总容量：<b class="text-success">{{ disk_stat.capacity/10**8 }}</b>GB</p>
+            <p>已用：<b class="text-warning">{{ disk_stat.used/10**8 }}</b>GB</p>
+            <p>可用：<b class="text-info">{{ disk_stat.available/10**8 }}</b>GB</p>
+        </div>
+        {% if last_time.partition %}
+
+        <div class="span4">
+            <h4>分区信息</h4>
+            {% set partition=last_time.partition %}
+            <table class="table table-bordered">
+                <tr>
+                    <th>挂载点</th>
+                    <th>总容量</th>
+                    <th>可用</th>
+                    <th>分区</th>
+                </tr>
+            {% for par in partition.keys() %}
+                <tr>
+                    <td>{{ par }}</td>
+                    <td>{{ partition[par].total|filesizeformat }}</td>
+                    <td>{{ partition[par].free|filesizeformat }}</td>
+                    <td>{{ partition[par].dev }}</td>
+                </tr>
+            {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+
+    </div>
+
+
+    <div class="row-fluid">
+        <div class="span4">
+            <h4><b>CPU使用率(%)</b></h4>
+            <br/><br/><br/>
+            <canvas id="cpu-usage" class="can" data-type="Line" data-list="{{ cpu_usage_list }}"></canvas>
+        </div>
+        <div class="span4">
+            <h4><b>内存使用率(%)</b></h4>
+            <p>内存总量：<b class="text-success">{{ last_time.mem_info.mem_total/1000000 }}</b>GB</p>
+            <p>已使用：<b class="text-warning">{{ last_time.mem_info.mem_used/1000000 }}</b>GB</p>
+            <canvas id="mem-info" data-type="Line" data-list="{{ mem_info_list }}"></canvas>
+        </div>
+    </div>
+
+    <h4>系统平均负载</h4>
+    <p>最后PID: <span class="text-error">{{ last_time.load_avg.last_pid }}</span></p>
+    <p>NR: <span class="text-error">{{ last_time.load_avg.nr }}</span></p>
+    <div class="row-fluid">
+        <div class="span4">
+            <p><b>最近一分钟：</b></p>
+            <canvas id="load_avg_1" data-type="Line" data-list="{{ load_avg_1 }}" ></canvas>
+        </div>
+        <div class="span4">
+            <p><b>最近五分钟：</b></p>
+            <canvas id="load_avg_5" data-type="Line" data-list="{{ load_avg_5 }}" ></canvas>
+        </div>
+        <div class="span4">
+            <p><b>最近十五分钟：</b></p>
+            <canvas id="load_avg_15" data-type="Line" data-list="{{ load_avg_15 }}" ></canvas>
+        </div>
+    </div>
+
+    <div class="clearfix"><br/><br/><br/></div>
+    <div class="row-fluid">
+        <div class="alert alert-block">
+            <h4>谨慎操作</h4><br/>
+            <a class="btn" href="/server/init/{{ ser._id }}/"><i class="icon-refresh"></i>初始化信息</a>
+            <a class="btn btn-warning" href="/server/update/{{ ser._id }}/"><i class="icon-pencil"></i>修改</a>
+            <a class="btn btn-danger" href="/server/delete/{{ ser._id }}/"><i class="icon-trash"></i>删除</a>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block foot %}
+    <script>
+        $("canvas").each(function(){
+			var $canvas = $(this);
+			var ctx = this.getContext("2d");
+            var data = {
+                labels : [1,2,3,4,5,6,7,8,9,10],
+                datasets : [
+                    {
+                        fillColor : "rgba(151,187,205,0.5)",
+                        strokeColor : "rgba(151,187,205,1)",
+                        pointColor : "rgba(151,187,205,1)",
+                        pointStrokeColor : "#fff",
+                        data : $canvas.data('list')
+                    }
+                ]};
+			var evalString = "new Chart(ctx)." + $canvas.data("type") + "(data);";
+			eval(evalString);
+		});
+    </script>
 {% endblock %}
