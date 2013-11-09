@@ -7,6 +7,9 @@ import time
 import platform
 import SimpleXMLRPCServer
 
+IP="127.0.0.1"
+PORT=1234
+
 class Proc:
 
     def __init__(self):
@@ -263,10 +266,9 @@ class Proc:
         return platform.node()
 
 if __name__ == '__main__':
-    _port = 1234
-    server = SimpleXMLRPCServer.SimpleXMLRPCServer(("127.0.0.1", _port))
+    server = SimpleXMLRPCServer.SimpleXMLRPCServer((IP, PORT))
 
     obj = Proc()
     server.register_instance(obj)
-    print "Listening on port %s" % _port
+    print "Listening on port %s" % PORT
     server.serve_forever()

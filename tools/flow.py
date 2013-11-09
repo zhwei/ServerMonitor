@@ -15,7 +15,7 @@ from tools.work_flow import connect, create_server_status, create_web_status
 
 con = Connection()
 db = con.ServerMonitor
-temperatures, server, location, server_status = documents()
+
 
 lock = threading.RLock()
 con = threading.Condition()
@@ -37,7 +37,7 @@ def main_thread():
             print('queue not empty!')
             queue.queue.clear()
 
-        servers = server.find()
+        servers = db.server.find()
         for s in servers:
             _task = ('server', s['_id'])
             with lock:

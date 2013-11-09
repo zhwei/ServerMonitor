@@ -8,16 +8,16 @@ con = Connection()
 db = con.ServerMonitor
 
 
-def documents():
-    """
-    return documents form mongodb one time
-    """
-    temperatures = db.temperature
-    server = db.server
-    location = db.location
-    server_status = db.server_status
-    return temperatures, server, location, server_status
-
+#def documents():
+#    """
+#    return documents form mongodb one time
+#    """
+#    temperatures = db.temperature
+#    server = db.server
+#    location = db.location
+#    server_status = db.server_status
+#    return temperatures, server, location, server_status
+#
 
 def find_one(obj, oid):
     return obj.find_one({"_id":ObjectId(oid)})

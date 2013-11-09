@@ -10,21 +10,14 @@ from pymongo import Connection
 from bson.objectid import ObjectId
 from socket import error as SocketError
 
-from db import documents, set_server, set_server_status, set_web, set_web_status
-temperatures, server, location, server_status = documents()
+from db import set_server, set_server_status, set_web, set_web_status
 
 con = Connection()
 db = con.ServerMonitor
 
-web = db.web
-#server = mon.server
-#location = mon.location
-#temperatures = mon.temperature
-#server_status = mon.server_status
-web_status = db.web_status
 
 def get_server():
-    servers = server.find()
+    servers = db.server.find()
     return servers
 
 def connect(ip):
@@ -34,20 +27,15 @@ def connect(ip):
         return 0
     return RemoteServer
 
-#def set_server_values(id, remote):
-#    """
-#    set server values in mongodb
-#    """
-
 
 def init_server(oid):
     '''
     after do_create_server() in sery.py
     init the server1
     '''
-    a = server.find_one({'_id':ObjectId(oid)})
+    a = db.server.find_one({'_id':ObjectId(oid)})
     remote = connect(a['ip'])
-    server.update({'_id':ObjectId(oid)},
+    db.server.update({'_id':ObjectId(oid)},
                   {'$set':
                        dict(
                             node = remote.get_node(),
@@ -61,7 +49,7 @@ def init_web(oid):
     """
     set web values in mongodb
     """
-    target = web.find_one({"_id":ObjectId(oid)})
+    target = db.web.find_one({"_id":ObjectId(oid)})
     monitor = WebMonitor(target['url'])
     db.web.update({'_id':ObjectId(oid)},
                   {'$set':
@@ -78,7 +66,7 @@ def create_server_status(oid):
     in the daemon thread
     """
     try:
-        oip = server.find_one({'_id':ObjectId(oid)})['ip']
+        oip = db.server.find_one({'_id':ObjectId(oid)})['ip']
         remote = connect(oip)
         dic = {
             'server_ID': oid,
@@ -102,7 +90,7 @@ from web_monitor import WebMonitor
 
 def create_web_status(oid):
     try:
-        target = web.find_one({"_id":ObjectId(oid)})
+        target = db.web.find_one({"_id":ObjectId(oid)})
         monitor = WebMonitor(target['url'])
         dic = {
             'web_ID': oid,

@@ -4,7 +4,6 @@
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
-import commands as co
 
 from bottle import (route,
                     run,
@@ -12,6 +11,7 @@ from bottle import (route,
                     static_file,
                     redirect,
                     abort,)
+
 from bottle import (jinja2_view as view,
                     jinja2_template as template,)
 
@@ -27,11 +27,11 @@ from tools.work_flow import init_server
 con = Connection()
 db = con.ServerMonitor
 
-web = db.web
-server = db.server
-location = db.location
-temperatures = db.temperature
-server_status = db.server_status
+#web = db.web
+#server = db.server
+#location = db.location
+#temperatures = db.temperature
+#server_status = db.server_status
 
 @route('/static/<filename:path>')
 def send_static(filename):
@@ -97,10 +97,10 @@ def create_server():
             "date": _date,
             "location_ID": _location_ID,
         }
-        server.insert(server1)
+        db.server.insert(server1)
         redirect('list')
 
-    locations=[(l['_id'],l['location']) for l in location.find()]
+    locations=[(l['_id'],l['location']) for l in db.location.find()]
     return template('server_form', locals())
 
 from tools.work_flow import init_web
@@ -127,7 +127,7 @@ def update_server(oid):
         _description = request.forms.get('description')
         _date = request.forms.get('date')
         _location_ID = request.forms.get('location')
-        server.update({'_id':ObjectId(oid)},
+        db.server.update({'_id':ObjectId(oid)},
                       {'$set':{
                             "name": _name,
                             "ip": _ip,
@@ -138,21 +138,21 @@ def update_server(oid):
                       },)
         return redirect('/server/list')
 
-    ser_instance = server.find_one({'_id':ObjectId(oid)})
-    locations=[(str(l['_id']),l['location']) for l in location.find()]
+    ser_instance = db.server.find_one({'_id':ObjectId(oid)})
+    locations=[(str(l['_id']),l['location']) for l in db.location.find()]
 
     return template('server_form', locals())
 
 @route('/server/detail/<oid>/')
 def detail_server(oid):
-    ser = server.find_one({'_id':ObjectId(oid)})
+    ser = db.server.find_one({'_id':ObjectId(oid)})
     try:
         condition = {'_id':ObjectId(ser['location_ID'])}
-        ser['location'] = location.find_one(condition)['location']
+        ser['location'] = db.location.find_one(condition)['location']
     except:
         ser['location'] = u'<span style="color:red;">机房未找到'
 
-    status = server_status.find({'server_ID':ObjectId(oid)}).sort('datetime', -1).limit(10)
+    status = db.server_status.find({'server_ID':ObjectId(oid)}).sort('datetime', -1).limit(10)
     status_list = [i for i in status]
     try:
         cpu_usage_list = [i['cpu_usage']*100 for i in status_list]
@@ -180,7 +180,7 @@ def create_location():
             'description': _description,
             'notes': _notes,
         }
-        location.insert(_location1)
+        db.location.insert(_location1)
         redirect('list')
     return template('loc_form',locals())
 
@@ -192,7 +192,7 @@ def update_location(oid):
         _location = request.forms.get('location')
         _description = request.forms.get('description')
         _notes = request.forms.get('notes')
-        location.update({'_id':ObjectId(oid)},
+        db.location.update({'_id':ObjectId(oid)},
                       {'$set':{
                         'location':_location,
                         'description': _description,
@@ -200,7 +200,7 @@ def update_location(oid):
                         }
                       },)
         redirect('/location/list')
-    loc_instance = location.find_one({'_id':ObjectId(oid)})
+    loc_instance = db.location.find_one({'_id':ObjectId(oid)})
     return template('loc_form', locals())
 
 @route('/web/add')
@@ -223,10 +223,10 @@ def create_web():
             'keywords': _keys,
             'server_ID': _server_ID,
         }
-        web.insert(web1)
+        db.web.insert(web1)
         redirect('/web/list')
 
-    servers=[(s['_id'],s['name']) for s in server.find()]
+    servers=[(s['_id'],s['name']) for s in db.server.find()]
     return template('web_form', locals())
 
 @route('/web/update/<oid>/')
@@ -239,7 +239,7 @@ def update_web(oid):
         _keywords = request.forms.get('keywords')
         _keys = [i.strip() for i in _keywords.split(',') if i.strip() is not '']
         _server_ID = request.forms.get('server')
-        web.update({'_id':ObjectId(oid)},
+        db.web.update({'_id':ObjectId(oid)},
                    {'$set':{
                     'name':_name,
                     'url':_url,
@@ -248,7 +248,7 @@ def update_web(oid):
                     'server_ID': _server_ID,
                 }})
         redirect('/web/list')
-    web_instance=web.find_one({'_id':ObjectId(oid)})
+    web_instance=db.web.find_one({'_id':ObjectId(oid)})
     web_instance['keywords']=','.join(web_instance['keywords'])
     servers=[(str(s['_id']),s['name']) for s in db.server.find()]
     return template('web_form', locals())
@@ -297,74 +297,13 @@ def delete(item, oid):
     name = find_one(obj, oid)[main]
     return template('confirm_delete', name=name, oid=oid)
 
-
-#@route('/history/<oid>/')
-#def history(oid):
-#    """
-#    history about one server
-#    """
-#    ser = find_one(server, oid)
-#    status = server_status.find({'server_ID':ObjectId(oid)}).sort('datetime', -1).limit(10)
-#    status_list = [i for i in status]
-#    try:
-#        cpu_usage_list = [i['cpu_usage']*100 for i in status_list]
-#        mem_info_list = [i['mem_info']['mem_used']/i['mem_info']['mem_total']*100 for i in status_list]
-#        up_time = status_list[0]['up_time']
-#        load_avg_1 = [float(i['load_avg']['lavg_1']) for i in status_list]
-#        load_avg_5 = [float(i['load_avg']['lavg_5']) for i in status_list]
-#        load_avg_15 = [float(i['load_avg']['lavg_15']) for i in status_list]
-#        last_time = status_list[0]
-#    except IndexError:
-#        return index_error('暂无历史记录')
-#    return template('history', locals())
-#
-#
-#@route('/commands')
-#@route('/commands', method="POST")
-#def commands():
-#    if request.method == "POST":
-#        com = request.forms.get('com')
-#        return "<form method='POST'><input type='text' cols=100 name='com' /><input type='submit' /></form><br />" + co.getoutput(com)
-#    return "<form method='POST'><input type='text' cols=100 name='com' /><input type='submit' /></form>"
-#
-
-#@route("/funcs")
-#def funcs():
-#    p = Proc()
-#    mem_info = p.mem_info()
-#    mem_usage = mem_info['mem_used']/mem_info['mem_total']
-#    cpu_usage = p.cpu_usage()
-#    print cpu_usage
-#    return template('funcs', locals())
-
-#@route('/list')
-#def lists():
-#    p = Proc()
-#    load_avg = p.load_avg()
-#    process_num = p.process_num()
-#    up_time = p.uptime_stat()
-#    disk_stat = p.disk_stat()
-#    cpu_info = p.cpu_info()
-#    net_stat = p.net_stat()
-#
-#    uname = plat.get_uname()
-#    system = plat.get_system()
-#
-#    node = plat.get_node()
-#    distribution = plat.get_linux_distribution()
-#
-#    import platform as pl
-#    pl = pl
-#
-#    return template('others', locals())
-
 @route("/temp")
 def temperature():
     """
      db.Account.find().sort("UserName",pymongo.ASCENDING)   --升序
      db.Account.find().sort("UserName",pymongo.DESCENDING)  --降序
     """
-    datas = temperatures.find().sort('datetime', -1).limit(10)
+    datas = db.temperatures.find().sort('datetime', -1).limit(10)
 
     labels = [i for i in range(10)]
 
