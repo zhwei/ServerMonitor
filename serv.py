@@ -5,15 +5,19 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+import bottle
 from bottle import (route,
                     run,
+                    app,
+                    hook,
                     request,
                     static_file,
                     redirect,
                     abort,)
 
-from bottle import (jinja2_view as view,
-                    jinja2_template as template,)
+from bottle import jinja2_template as template
+
+from beaker.middleware import SessionMiddleware
 
 from pymongo import Connection
 from bson.objectid import ObjectId
@@ -21,25 +25,108 @@ from socket import error as SocketError
 
 
 from conf import STATIC_DIR
-from tools.db import find_one
+from tools.db import find_one, check_code
 from tools.work_flow import init_server
 
 con = Connection()
 db = con.ServerMonitor
 
-#web = db.web
-#server = db.server
-#location = db.location
-#temperatures = db.temperature
-#server_status = db.server_status
+session_opts = {
+    'session.type': 'file',
+    'session.cookie_expires': 300,
+    'session.data_dir': './sessions',
+    'session.auto': True
+}
+
+app = SessionMiddleware(app(), session_opts)
+#session=bottle.request.environ.get('beaker.session')
+bottle.BaseTemplate.defaults['session'] = request.environ.get('beaker.session')
+
+#class Session():
+#    def __init__(self):
+#        self._s=request.environ.get('beaker.session')
+#
+#    def __setitem__(self, key, value):
+#        self.set(key,value)
+#    def __getitem__(self, item):
+#        return self.get(item)
+#    def set(self,key,value):
+#        self._s[key]=value
+#    def get(self, key):
+#        return self._s.get(key)
+
+@hook('before_request')
+def check_login():
+    session = request.environ.get('beaker.session')
+    if request.path not in ('/login',):
+        try:
+            if session['logged'] != True:
+                redirect('/login')
+        except KeyError:
+            redirect('/login')
+    else:
+        pass
 
 @route('/static/<filename:path>')
 def send_static(filename):
     return static_file(filename, root=STATIC_DIR)
 
+#def login_required(func):
+#    def ver(**kwargs):
+#        session = request.environ.get('beaker.session')
+#        print session
+#        if session['logged'] != True:
+#            redirect('/login')
+#    return ver
+
+#def login_required():
+#        #session=Session()
+#    session = request.environ.get('beaker.session')
+#    try:
+#        if session['logged'] != True:
+#            redirect('/login')
+#    except KeyError:
+#        redirect('/')
+
+@route('/aaaa')
+def aaa():
+    return template('others')
+
 @route("/")
 def index():
+    #login_required()
     return template('index')
+
+def do_login(user, pw):
+    try:
+        crypt_pw = db.user.find_one({'username':user})['password']
+    except TypeError:
+        return template('login', error='用户名或密码错误！')
+    if check_code(pw, crypt_pw):
+        #session=Session()
+        session = request.environ.get('beaker.session')
+        session['logged']=True
+        session['username']=user
+        redirect('/')
+    else:
+        return template('login', error='用户名或密码错误！')
+
+@route("/login")
+@route("/login", method="POST")
+def login():
+    if request.method=='POST':
+        _user=request.forms.get('username')
+        _pw=request.forms.get('password')
+        return do_login(_user, _pw)
+        #return _user,_pw
+    return template('login')
+
+@route('/logout')
+def logout():
+    session = request.environ.get('beaker.session')
+    session['logged']=False
+    print session
+    redirect('/')
 
 
 def index_error(content):
@@ -311,7 +398,7 @@ def temperature():
 
 
 def dev_server():
-    run(host='0.0.0.0', port=8080, debug=True)
+    run(app=app,host='0.0.0.0', port=8080, debug=True)
 
 if '__main__' == __name__:
     from django.utils import autoreload

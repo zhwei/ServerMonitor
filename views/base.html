@@ -58,6 +58,12 @@
           </button>
           <a class="brand" href="/">ServerMonitor</a>
           <div class="nav-collapse collapse">
+            <p class="navbar-text pull-right">
+                {% if session.logged == True %}
+                    管理员{{ session.username }}
+                {% endif %}
+                <a href="/logout">注销</a>
+            </p>
             <ul class="nav">
               {% block nav %}
               {% endblock %}

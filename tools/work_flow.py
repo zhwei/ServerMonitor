@@ -10,10 +10,8 @@ from pymongo import Connection
 from bson.objectid import ObjectId
 from socket import error as SocketError
 
+from db import db
 from db import set_server, set_server_status, set_web, set_web_status
-
-con = Connection()
-db = con.ServerMonitor
 
 
 def get_server():

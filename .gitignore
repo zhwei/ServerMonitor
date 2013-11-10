@@ -2,6 +2,7 @@
 
 .idea/*
 env/*
+sessions/*
 
 # C extensions
 *.so

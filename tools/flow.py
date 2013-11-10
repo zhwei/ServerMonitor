@@ -10,8 +10,7 @@ from socket import error as SocketError
 from pymongo import Connection
 from bson import ObjectId
 
-from tools.db import documents, set_server
-from tools.work_flow import connect, create_server_status, create_web_status
+from tools.work_flow import create_server_status, create_web_status
 
 con = Connection()
 db = con.ServerMonitor
