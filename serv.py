@@ -39,21 +39,9 @@ session_opts = {
 }
 
 app = SessionMiddleware(app(), session_opts)
-#session=bottle.request.environ.get('beaker.session')
 bottle.BaseTemplate.defaults['session'] = request.environ.get('beaker.session')
 
-#class Session():
-#    def __init__(self):
-#        self._s=request.environ.get('beaker.session')
-#
-#    def __setitem__(self, key, value):
-#        self.set(key,value)
-#    def __getitem__(self, item):
-#        return self.get(item)
-#    def set(self,key,value):
-#        self._s[key]=value
-#    def get(self, key):
-#        return self._s.get(key)
+
 
 @hook('before_request')
 def check_login():
@@ -64,37 +52,19 @@ def check_login():
                 redirect('/login')
         except KeyError:
             redirect('/login')
-    else:
-        pass
+
 
 @route('/static/<filename:path>')
 def send_static(filename):
     return static_file(filename, root=STATIC_DIR)
 
-#def login_required(func):
-#    def ver(**kwargs):
-#        session = request.environ.get('beaker.session')
-#        print session
-#        if session['logged'] != True:
-#            redirect('/login')
-#    return ver
-
-#def login_required():
-#        #session=Session()
-#    session = request.environ.get('beaker.session')
-#    try:
-#        if session['logged'] != True:
-#            redirect('/login')
-#    except KeyError:
-#        redirect('/')
-
 @route('/aaaa')
 def aaa():
+    print request.environ.get('beaker.session')
     return template('others')
 
 @route("/")
 def index():
-    #login_required()
     return template('index')
 
 def do_login(user, pw):
@@ -103,7 +73,6 @@ def do_login(user, pw):
     except TypeError:
         return template('login', error='用户名或密码错误！')
     if check_code(pw, crypt_pw):
-        #session=Session()
         session = request.environ.get('beaker.session')
         session['logged']=True
         session['username']=user
@@ -118,14 +87,12 @@ def login():
         _user=request.forms.get('username')
         _pw=request.forms.get('password')
         return do_login(_user, _pw)
-        #return _user,_pw
     return template('login')
 
 @route('/logout')
 def logout():
     session = request.environ.get('beaker.session')
     session['logged']=False
-    print session
     redirect('/')
 
 
@@ -241,19 +208,27 @@ def detail_server(oid):
 
     status = db.server_status.find({'server_ID':ObjectId(oid)}).sort('datetime', -1).limit(10)
     status_list = [i for i in status]
-    try:
-        cpu_usage_list = [i['cpu_usage']*100 for i in status_list]
-        mem_info_list = [i['mem_info']['mem_used']/i['mem_info']['mem_total']*100 for i in status_list]
-        up_time = status_list[0]['up_time']
-        load_avg_1 = [float(i['load_avg']['lavg_1']) for i in status_list]
-        load_avg_5 = [float(i['load_avg']['lavg_5']) for i in status_list]
-        load_avg_15 = [float(i['load_avg']['lavg_15']) for i in status_list]
-        last_time = status_list[0]
-    except IndexError:
-        return index_error('暂无历史记录<a href="/server/delete/%s/">删除</a>'% oid)
-        #pass
+    last_time = status_list[0]
 
-    return template('detail_server', locals())
+    if ser['system'] == "Linux":
+        try:
+            cpu_usage_list = [i['cpu_usage']*100 for i in status_list]
+            mem_info_list = [i['mem_info']['mem_used']/i['mem_info']['mem_total']*100 for i in status_list]
+            up_time = status_list[0]['up_time']
+            load_avg_1 = [float(i['load_avg']['lavg_1']) for i in status_list]
+            load_avg_5 = [float(i['load_avg']['lavg_5']) for i in status_list]
+            load_avg_15 = [float(i['load_avg']['lavg_15']) for i in status_list]
+        except IndexError:
+            return index_error('暂无历史记录<a href="/server/delete/%s/">删除</a>'% oid)
+            pass
+    elif ser['system'] == "Windows":
+        try:
+            cpu_usage_list = [i['cpu_usage']*100 for i in status_list]
+            mem_info_list = [i['mem_info']['mem_used']/i['mem_info']['mem_total']*100 for i in status_list]
+        except IndexError:
+            return index_error('暂无历史记录<a href="/server/delete/%s/">删除</a>'% oid)
+            pass
+    return template('detail_server_win', locals())
 
 @route('/location/add')
 @route('/location/add', method='POST')

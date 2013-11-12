@@ -64,7 +64,9 @@ def create_server_status(oid):
     in the daemon thread
     """
     try:
-        oip = db.server.find_one({'_id':ObjectId(oid)})['ip']
+        o = db.server.find_one({'_id':ObjectId(oid)})
+        oip = o['ip']
+        o_system=o['system']
         remote = connect(oip)
         dic = {
             'server_ID': oid,
@@ -72,11 +74,24 @@ def create_server_status(oid):
             'mem_info': remote.mem_info(),
             'net_stat': remote.net_stat(),
             'cpu_usage': remote.cpu_usage(),
-            'disk_stat': remote.disk_stat(),
+            #'disk_stat': remote.disk_stat(),
             'up_time': remote.uptime_stat(),
             'partition': remote.partition(),
             'datetime': datetime.datetime.now(),
             }
+        if o_system == "Windows":
+            dic = dict(dic, **{
+                'disk_stat': remote.desk_stat(),
+                'machine': remote.get_machine(),
+                'set_up':remote.set_up(),
+                'network': remote.network(),
+                'process_num': remote.process_num(),
+            })
+        elif o_system == "Linux":
+            dic = dict(dic, **{
+                'disk_stat': remote.disk_stat(),
+            })
+
         set_server(oid, {'status_now': 0,}) # update "server
         set_server_status(dic)
         print('update server %s' % oid)

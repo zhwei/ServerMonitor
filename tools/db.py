@@ -20,7 +20,7 @@ def check_code(raw_password, crypt_password):
     raw_password: from login page
     crypt_password: from mongodb
     """
-    raw_hash = bcrypt.hashpw(raw_password, crypt_password)
+    raw_hash = bcrypt.hashpw(raw_password.encode('utf-8'), crypt_password.encode('utf-8'))
     return raw_hash == crypt_password
 
 def create_user(username, password, real_name):
