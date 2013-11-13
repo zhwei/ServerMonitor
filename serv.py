@@ -208,7 +208,10 @@ def detail_server(oid):
 
     status = db.server_status.find({'server_ID':ObjectId(oid)}).sort('datetime', -1).limit(10)
     status_list = [i for i in status]
-    last_time = status_list[0]
+    try:
+        last_time = status_list[0]
+    except IndexError:
+        error="<a href='/init/%s/' class='btn btn-primary'>请初始化</a>"
 
     if ser['system'] == "Linux":
         try:
@@ -218,17 +221,18 @@ def detail_server(oid):
             load_avg_1 = [float(i['load_avg']['lavg_1']) for i in status_list]
             load_avg_5 = [float(i['load_avg']['lavg_5']) for i in status_list]
             load_avg_15 = [float(i['load_avg']['lavg_15']) for i in status_list]
+            tpl_name='detail_server'
         except IndexError:
             return index_error('暂无历史记录<a href="/server/delete/%s/">删除</a>'% oid)
-            pass
     elif ser['system'] == "Windows":
         try:
             cpu_usage_list = [i['cpu_usage']*100 for i in status_list]
             mem_info_list = [i['mem_info']['mem_used']/i['mem_info']['mem_total']*100 for i in status_list]
+            tpl_name="detail_server_win.html"
         except IndexError:
             return index_error('暂无历史记录<a href="/server/delete/%s/">删除</a>'% oid)
-            pass
-    return template('detail_server_win', locals())
+
+    return template(tpl_name, locals())
 
 @route('/location/add')
 @route('/location/add', method='POST')
@@ -366,9 +370,8 @@ def temperature():
      db.Account.find().sort("UserName",pymongo.DESCENDING)  --降序
     """
     datas = db.temperatures.find().sort('datetime', -1).limit(10)
-
     labels = [i for i in range(10)]
-
+    datas = [t for t in datas]
     return template('temp', labels=labels, datas=datas)
 
 
