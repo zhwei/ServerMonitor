@@ -26,6 +26,7 @@ from socket import error as SocketError
 
 from conf import STATIC_DIR
 from tools.db import find_one, check_code
+from tools.db import create_user as db_create_user, update_user as db_update_user
 from tools.work_flow import init_server
 
 con = Connection()
@@ -57,11 +58,6 @@ def check_login():
 @route('/static/<filename:path>')
 def send_static(filename):
     return static_file(filename, root=STATIC_DIR)
-
-@route('/aaaa')
-def aaa():
-    print request.environ.get('beaker.session')
-    return template('others')
 
 @route("/")
 def index():
@@ -116,6 +112,8 @@ def list(name):
         webs = [i for i in db.web.find()]
         for i in webs:
             i['server_name']=db.server.find_one({"_id":ObjectId(i['server_ID'])})['name']
+    elif name == 'user':
+        users = db.user.find()
     else:
         abort(404)
     return template('list', locals())
@@ -346,6 +344,30 @@ def detail_web(oid):
         wb['server'] = u'<div class="alert alert-block">服务器未找到</div>'
     return template('detail_web', locals())
 
+
+@route('/user/add')
+@route('/user/add', method='POST')
+def create_user():
+    if request.method == "POST":
+        _user = request.forms.get("username")
+        _pw = request.forms.get("password")
+        _real = request.forms.get("real_name")
+        db_create_user(_user, _pw, _real)
+        redirect('list')
+    return template('user_form', locals())
+
+@route('/user/update/<oid>/')
+@route('/user/update/<oid>/', method="POST")
+def update_user(oid):
+    if request.method == "POST":
+        _user = request.forms.get("username")
+        _pw = request.forms.get("password")
+        _real = request.forms.get("real_name")
+        db_update_user(oid, _user, _pw, _real)
+        redirect('../../list')
+
+    user_instance = db.user.find_one({"_id": ObjectId(oid)})
+    return template('user_form', locals())
 @route('/<item>/delete/<oid>/')
 @route('/<item>/delete/<oid>/', method="POST")
 def delete(item, oid):
@@ -363,6 +385,8 @@ def delete(item, oid):
             return index_error('该机房包含可用服务器，请先迁移服务器！')
     elif item == "web":
         obj, main = db.web, 'name'
+    elif item == "user":
+        obj, main = db.user, 'username'
     else:
         abort(404)
     if request.method == 'POST':

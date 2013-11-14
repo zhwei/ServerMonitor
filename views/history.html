@@ -11,7 +11,9 @@
         <li><a href="#">{{ name }}</a> <span class="divider">/</span></li>
         <li class="active">历史记录</li>
     </ul>
-    <p>从<span class="badge">{{ start }}</span>到<span class="badge">{{ end }}</span></p>
+    <div class="span9">
+    <p><span class="text text-error">时间段：</span>从<span class="badge">{{ start }}</span>到<span class="badge">{{ end }}</span></p>
+    </div>
     <div class="span9">
         <p><b>{{ name }}</b></p>
         <canvas id="load_avg_15" width="900px" height="300px" data-type="Line" data-list="{{ data_list }}"></canvas>

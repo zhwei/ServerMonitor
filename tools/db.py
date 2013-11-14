@@ -45,6 +45,13 @@ def update(oid, coll, dic):
     coll.update({'_id': ObjectId(oid)},
         {'$set':dic})
 
+def update_user(oid, user, pw, real):
+    passwd = gen_code(pw)
+    dic = {'username': user,
+           'password': passwd,
+           'real_name':real}
+    update(oid, db.user, dic)
+
 def find_one(obj, oid):
     return obj.find_one({"_id":ObjectId(oid)})
 

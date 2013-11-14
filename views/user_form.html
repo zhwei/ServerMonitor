@@ -1,0 +1,40 @@
+{% extends 'base' %}
+
+{% block title %}
+添加管理员
+{% endblock %}
+
+{% if user_instance is undefined %}
+    {% set user_instance = '' %}
+    {% set active_page = "user_add" %}
+    {% set legend = True %}
+{% endif %}
+
+{% import 'form' as form %}
+{% block content %}
+
+<div>
+
+<ul class="breadcrumb">
+    <li><a href="/">网站后台</a><span class="divider">/</span></li>
+    <li><a href="/web/list">网站</a><span class="divider">/</span></li>
+    <li class="active">添加网站<span class="divider">/</span></li>
+</ul>
+
+    <form action="" method="POST">
+        <fieldset>
+            {% if legend %}
+            <legend>添加管理员</legend>
+            {% else %}
+            <legend>修改用户</legend>
+            {% endif %}
+
+            {{ form.input(name='username', label='用户名', value=user_instance.username) }}
+            {{ form.input(name='password', label='密码') }}
+            {{ form.input(name='real_name', label='真实姓名', value=user_instance.real_name) }}
+        </fieldset>
+            {{ form.submit(value="提交") }}
+    </form>
+</div>
+
+{% endblock %}
