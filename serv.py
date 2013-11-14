@@ -49,9 +49,9 @@ def check_login():
     if request.path not in ('/login',):
         try:
             if session['logged'] != True:
-                redirect('/login')
+                redirect('/login?%s'%request.path)
         except KeyError:
-            redirect('/login')
+            redirect('/login?%s'%request.path)
 
 
 @route('/static/<filename:path>')
@@ -76,7 +76,7 @@ def do_login(user, pw):
         session = request.environ.get('beaker.session')
         session['logged']=True
         session['username']=user
-        redirect('/')
+        return True
     else:
         return template('login', error='用户名或密码错误！')
 
@@ -86,7 +86,9 @@ def login():
     if request.method=='POST':
         _user=request.forms.get('username')
         _pw=request.forms.get('password')
-        return do_login(_user, _pw)
+        refer = request.urlparts[3]
+        if do_login(_user, _pw):
+            redirect(refer)
     return template('login')
 
 @route('/logout')
@@ -161,6 +163,7 @@ from tools.work_flow import init_web
 
 @route('/<item>/init/<oid>/')
 def init_info(item,oid):
+    from requests import ConnectionError
     try:
         if item == "server":
             init_server(oid)
@@ -170,6 +173,8 @@ def init_info(item,oid):
             abort(404)
     except SocketError:
         return index_error('无法连接，请检查网络或者配置是否正确。')
+    except ConnectionError:
+        return index_error("网站无法链接，请检查配置是否正确！")
     redirect('/%s/detail/%s/' %(item, oid))
 
 @route('/server/update/<oid>/',method='GET')
@@ -322,14 +327,18 @@ def update_web(oid):
 @route('/web/detail/<oid>/')
 def detail_web(oid):
     wb = db.web.find_one({'_id':ObjectId(oid)})
-    status = db.web_status.find({'web_ID':ObjectId(oid)}).sort('datetime', -1).limit(10)
-    status_list = [i for i in status]
 
-    total_time_list = [i['total_time'] for i in status_list]
-    connect_time_list = [i['connect_time'] for i in status_list]
-    name_look_up_list = [i['name_look_up'] for i in status_list]
+    try:
+        status = db.web_status.find({'web_ID':ObjectId(oid)}).sort('datetime', -1).limit(10)
+        status_list = [i for i in status]
 
-    last_status = status_list[0]
+        total_time_list = [i['total_time'] for i in status_list]
+        connect_time_list = [i['connect_time'] for i in status_list]
+        name_look_up_list = [i['name_look_up'] for i in status_list]
+
+        last_status = status_list[0]
+    except IndexError:
+        pass
     try:
         _condition = {'_id':ObjectId(wb['server_ID'])}
         wb['server'] = db.server.find_one(_condition)['name']
@@ -362,6 +371,60 @@ def delete(item, oid):
         redirect('../../list')
     name = find_one(obj, oid)[main]
     return template('confirm_delete', name=name, oid=oid)
+
+@route('/<item>/<oid>/<num>/<t>/')
+def history(item, oid, num,t=1):
+    """
+    The canvas's history
+    item: server -- cpu, mem, load<1, 5, 15>
+          web -- total connect lookup
+    """
+    if item in ('cpu', 'mem', 'load_1', 'load_5', 'load_15'):
+        father, son=db.server, db.server_status
+        id_name='server_ID'
+    elif item in ('total', 'connect', 'lookup'):
+        father, son=db.web, db.web_status
+        id_name='web_ID'
+    else:
+        abort(404)
+
+    t = int(t)
+    num = int(num)
+
+    all_list=son.find({id_name:ObjectId(oid)}).sort('datetime', -1)
+    page_count = all_list.count()//num + 1
+    status_list=all_list.skip((t-1)*num).limit(num)
+    status_list = [i for i in status_list]
+    end, start = status_list[0]['datetime'], status_list[-1]['datetime']
+    dates = [i['datetime'].strftime('%m-%d-%H:%M') for i in status_list]
+
+    if item == 'cpu':
+        data_list = [i['cpu_usage'] for i in status_list]
+        name='cpu'
+    elif item == 'mem':
+        data_list = [i['mem_info']['mem_used']/i['mem_info']['mem_total']*100 for i in status_list]
+        name='内存'
+    elif item == 'load_1':
+        data_list = [float(i['load_avg']['lavg_1']) for i in status_list]
+        name ='最近一分钟负载'
+    elif item == 'load_5':
+        data_list = [float(i['load_avg']['lavg_5']) for i in status_list]
+        name = '最近五分钟负载'
+    elif item == 'load_15':
+        data_list = [float(i['load_avg']['lavg_15']) for i in status_list]
+        name='最近十五分钟负载'
+    elif item == 'total':
+        data_list=[i['total_time'] for i in status_list]
+        name='总时间'
+    elif item == 'connect':
+        data_list = [i['connect_time'] for i in status_list]
+        name='连接时间'
+    elif item == 'lookup':
+        data_list=[i['name_look_up'] for i in status_list]
+        name='域名解析时间'
+    else:
+        abort(404)
+    return template("history", locals())
 
 @route("/temp")
 def temperature():

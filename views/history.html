@@ -1,120 +1,70 @@
 {% extends 'base' %}
 
 {% block title %}
-查询历史
+查询 {{ name }} 历史
 {% endblock %}
+
 
 {% block content %}
     <ul class="breadcrumb">
         <li><a href="">网站后台</a> <span class="divider">/</span></li>
-        <li><a href="/server/list">服务器</a> <span class="divider">/</span></li>
-        <li><a href="/server/detail/{{ ser._id }}/">{{ ser.name }}</a> <span class="divider">/</span></li>
-        <li class="active">{{ ser.name }}的历史记录</li>
+        <li><a href="#">{{ name }}</a> <span class="divider">/</span></li>
+        <li class="active">历史记录</li>
     </ul>
-
-    <div class="row-fluid">
-        <p><b>正常运行时间：</b></p>
-        <h2><span class="text-success">{{ up_time.day }}</span>天
-        <span class="text-info">{{ up_time.hour }}</span>小时
-        <span class="text-warning">{{ up_time.minute }}</span>分钟
-        <span class="text-error">{{ up_time.second }}</span>秒</h2>
+    <p>从<span class="badge">{{ start }}</span>到<span class="badge">{{ end }}</span></p>
+    <div class="span9">
+        <p><b>{{ name }}</b></p>
+        <canvas id="load_avg_15" width="900px" height="300px" data-type="Line" data-list="{{ data_list }}"></canvas>
     </div>
-    <div class="row-fluid">
-        <div class="span4">
-            <h3><b>流量监控</b></h3>
-            {% set net_stat = last_time.net_stat %}
-            {% for net in net_stat.keys() %}
-                <p>网卡：<b>{{ net }}</b></p>
-                <p>上行流量：<b class="text-success">{{ net_stat[net].rx }}</b>GB</p>
-                <p>下载流量：<b class="text-info">{{ net_stat[net].rx }}</b>GB</p>
-            {% endfor %}
-        </div>
-        <div class="span4">
-            <h3><b>磁盘状况</b></h3>
-            {% set disk_stat = last_time.disk_stat %}
-            <p>总容量：<b class="text-success">{{ disk_stat.capacity/10**8 }}</b>GB</p>
-            <p>已用：<b class="text-warning">{{ disk_stat.used/10**8 }}</b>GB</p>
-            <p>可用：<b class="text-info">{{ disk_stat.available/10**8 }}</b>GB</p>
-        </div>
-    </div>
-
-    <div class="row-fluid">
-        <div class="span4">
-            <h3><b>CPU使用率(%)</b></h3>
-            <canvas id="cpu-usage" class="can" data-type="Line" data-list="{{ cpu_usage_list }}" class="span4"></canvas>
-        </div>
-        <div class="span4">
-            <h3><b>内存使用率(%)</b></h3>
-            <p>内存总量：<b class="text-success">{{ last_time.mem_info.mem_total/1000000 }}</b>GB</p>
-            <p>已使用：<b class="text-warning">{{ last_time.mem_info.mem_used/1000000 }}</b>GB</p>
-            <canvas id="mem-info" data-type="Line" data-list="{{ mem_info_list }}" class="span4"></canvas>
+    <div class="clearfix"></div>
+    <div>
+        <ul class="pager">
+        {% if t==1 %}
+            <li class="disabled"><a href="#">前一页</a></li>
+        {% else %}
+        <li><a href="/{{ item }}/{{ oid }}/{{ num }}/{{ t - 1 }}/">前一页</a></li>
+        {% endif %}
+            <li>第{{ t }}页</li>
+        {% if t==page_count or page_count==0 %}
+            <li class="disabled"><a href="#">后一页</a></li>
+        {% else %}
+            <li><a href="/{{ item }}/{{ oid }}/{{ num }}/{{ t + 1 }}/">后一页</a></li>
+        {% endif %}
+            <li>共{{ page_count }}页,{{ all_list.count() }}条记录</li>
+        </ul>
+        <div class="btn-group dropup">
+            <button class="btn btn-inverse btn-small">每页显示多少条</button>
+            <button class="btn btn-info btn-small dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+            <ul class="dropdown-menu">
+              <li><a href="/{{ item }}/{{ oid }}/10/1/">10</a></li>
+              <li><a href="/{{ item }}/{{ oid }}/20/1/">20</a></li>
+              <li><a href="/{{ item }}/{{ oid }}/30/1/">30</a></li>
+              <li><a href="/{{ item }}/{{ oid }}/40/1/">40</a></li>
+              <li><a href="/{{ item }}/{{ oid }}/50/1/">50</a></li>
+              <li><a href="/{{ item }}/{{ oid }}/100/1/">100</a></li>
+            </ul>
         </div>
     </div>
-
-    <div class="row-fluid">
-        <h3><b>系统平均负载</b></h3>
-        <div class="span4">
-            <h4>最后PID: <span class="text-error">{{ last_time.load_avg.last_pid }}</span></h4>
-            <h4>NR: <span class="text-error">{{ last_time.load_avg.nr }}</span></h4>
-        </div>
-        <div class="span4">
-            <p><b>最近一分钟：</b></p>
-            <canvas id="load_avg_1" data-type="Line" data-list="{{ load_avg_1 }}" class="span4"></canvas>
-        </div>
-        <div class="span4">
-            <p><b>最近五分钟：</b></p>
-            <canvas id="load_avg_5" data-type="Line" data-list="{{ load_avg_5 }}" class="span4"></canvas>
-        </div>
-        <div class="span4">
-            <p><b>最近十五分钟：</b></p>
-            <canvas id="load_avg_15" data-type="Line" data-list="{{ load_avg_15 }}" class="span4"></canvas>
-        </div>
-
-    </div>
-
-
-
-
 {% endblock %}
 
 {% block foot %}
-    <script>
+   <script>
         $("canvas").each(function(){
 			var $canvas = $(this);
 			var ctx = this.getContext("2d");
-            if($canvas.data("type")=="Line"){
-                var data = {
-                    labels : [1,2,3,4,5,6,7,8,9,10],
-                    datasets : [
-                        {
-                            fillColor : "rgba(151,187,205,0.5)",
-                            strokeColor : "rgba(151,187,205,1)",
-                            pointColor : "rgba(151,187,205,1)",
-                            pointStrokeColor : "#fff",
-                            data : $canvas.data('list')
-                        }
-                    ]};
-            }
-            else if($canvas.data("type")=="Bar"){
-                var data = {
-                    labels : [1,2,3,4,5,6,7,8,9,10],
-                    datasets : [
-                        {
-                            fillColor : "rgba(220,220,220,0.5)",
-                            strokeColor : "rgba(220,220,220,1)",
-                            data : [65,59,90,81,56,55,40]
-                        },
-                        {
-                            fillColor : "rgba(151,187,205,0.5)",
-                            strokeColor : "rgba(151,187,205,1)",
-                            data : [28,48,40,19,96,27,100]
-                        }
-                    ]
-                };
-            }
+            var data = {
+                labels : {{ dates }},
+                datasets : [
+                    {
+                        fillColor : "rgba(151,187,205,0.5)",
+                        strokeColor : "rgba(151,187,205,1)",
+                        pointColor : "rgba(151,187,205,1)",
+                        pointStrokeColor : "#fff",
+                        data : $canvas.data('list')
+                    }
+                ]};
 			var evalString = "new Chart(ctx)." + $canvas.data("type") + "(data);";
 			eval(evalString);
 		});
-
     </script>
 {% endblock %}

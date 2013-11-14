@@ -109,11 +109,13 @@
     <div class="row-fluid">
         <div class="span4">
             <h4><b>CPU使用率(%)</b></h4>
+            <p><a href="/cpu/{{ oid }}/20/1/">更多</a></p>
             <br/><br/><br/>
             <canvas id="cpu-usage" class="can" data-type="Line" data-list="{{ cpu_usage_list }}"></canvas>
         </div>
         <div class="span4">
             <h4><b>内存使用率(%)</b></h4>
+            <p><a href="/mem/{{ oid }}/20/1/">更多</a></p>
             <p>内存总量：<b class="text-success">{{ last_time.mem_info.mem_total/1000000 }}</b>GB</p>
             <p>已使用：<b class="text-warning">{{ last_time.mem_info.mem_used/1000000 }}</b>GB</p>
             <canvas id="mem-info" data-type="Line" data-list="{{ mem_info_list }}"></canvas>
@@ -125,15 +127,15 @@
     <p>NR: <span class="text-error">{{ last_time.load_avg.nr }}</span></p>
     <div class="row-fluid">
         <div class="span4">
-            <p><b>最近一分钟：</b></p>
+            <p><b>最近一分钟：</b><a href="/load_1/{{ oid }}/20/1/">更多</a></p>
             <canvas id="load_avg_1" data-type="Line" data-list="{{ load_avg_1 }}" ></canvas>
         </div>
         <div class="span4">
-            <p><b>最近五分钟：</b></p>
+            <p><b>最近五分钟：</b><a href="/load_5/{{ oid }}/20/1/">更多</a></p>
             <canvas id="load_avg_5" data-type="Line" data-list="{{ load_avg_5 }}" ></canvas>
         </div>
         <div class="span4">
-            <p><b>最近十五分钟：</b></p>
+            <p><b>最近十五分钟：</b><a href="/load_15/{{ oid }}/20/1/">更多</a></p>
             <canvas id="load_avg_15" data-type="Line" data-list="{{ load_avg_15 }}" ></canvas>
         </div>
     </div>
@@ -157,7 +159,7 @@
 			var $canvas = $(this);
 			var ctx = this.getContext("2d");
             var data = {
-                labels : [1,2,3,4,5,6,7,8,9,10],
+                labels : ['最新',1,2,3,4,5,6,7,8,'较旧'],
                 datasets : [
                     {
                         fillColor : "rgba(151,187,205,0.5)",
