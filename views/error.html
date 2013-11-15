@@ -9,5 +9,11 @@
     <div class="span8 alert alert-danger">
         <p><b>{{ content }}</b></p>
     </div>
+    {% if referer %}
+        <div class="span8">
+            <a href="{{ referer }}" class="btn">返回</a>
+        </div>
+    {% endif %}
+
 
 {% endblock %}

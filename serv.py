@@ -6,31 +6,28 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 import bottle
-from bottle import (route,
-                    run,
-                    app,
-                    hook,
-                    request,
-                    static_file,
-                    redirect,
-                    abort,)
-
-from bottle import jinja2_template as template
-
-from beaker.middleware import SessionMiddleware
+from bottle import route, run, app, request, redirect, abort
 
 from pymongo import Connection
 from bson.objectid import ObjectId
 from socket import error as SocketError
-
+from bottle import jinja2_template as template
+from beaker.middleware import SessionMiddleware
 
 from conf import STATIC_DIR
 from tools.db import find_one, check_code
 from tools.db import create_user as db_create_user, update_user as db_update_user, update
-from tools.work_flow import init_server
+from tools.toolbox import init_server, init_log
+
+logger = init_log(log_name='bottle_server', level_name='info',fi=True)
+
 
 con = Connection()
 db = con.ServerMonitor
+
+# start flow
+from tools.flow import start as flow_start
+flow_start()
 
 session_opts = {
     'session.type': 'file',
@@ -44,7 +41,7 @@ bottle.BaseTemplate.defaults['session'] = request.environ.get('beaker.session')
 
 
 
-@hook('before_request')
+@bottle.hook('before_request')
 def check_login():
     session = request.environ.get('beaker.session')
     if request.path not in ('/login',):
@@ -57,16 +54,19 @@ def check_login():
 
 @route('/static/<filename:path>')
 def send_static(filename):
-    return static_file(filename, root=STATIC_DIR)
+    return bottle.static_file(filename, root=STATIC_DIR)
 
 @route("/")
 def index():
-    return template('index')
+    servers = db.server.find()
+    webs = db.web.find()
+    return template('index', locals())
 
 def do_login(user, pw):
     try:
         crypt_pw = db.user.find_one({'username':user})['password']
     except TypeError:
+        logger.info('用户名或密码错误！')
         return template('login', error='用户名或密码错误！')
     if check_code(pw, crypt_pw):
         session = request.environ.get('beaker.session')
@@ -74,6 +74,7 @@ def do_login(user, pw):
         session['username']=user
         return True
     else:
+        logger.info('用户名或密码错误！')
         return template('login', error='用户名或密码错误！')
 
 @route("/login")
@@ -94,9 +95,9 @@ def logout():
     redirect('/')
 
 
-def index_error(content):
+def index_error(content, referer=None):
     """error page base on base.html """
-    return template('error', content=content)
+    return template('error', content=content, referer=referer)
 
 @route('/<name>/list')
 def list(name):
@@ -157,7 +158,7 @@ def create_server():
     locations=[(l['_id'],l['location']) for l in db.location.find()]
     return template('server_form', locals())
 
-from tools.work_flow import init_web
+from tools.toolbox import init_web
 
 @route('/<item>/init/<oid>/')
 def init_info(item,oid):
@@ -363,11 +364,16 @@ def update_user(oid):
         _user = request.forms.get("username")
         _pw = request.forms.get("password")
         _real = request.forms.get("real_name")
+        if _pw == '':
+            user_instance = db.user.find_one({"_id": ObjectId(oid)})
+            error='密码不能为空!'
+            return template('user_form', locals())
         db_update_user(oid, _user, _pw, _real)
         redirect('../../list')
 
     user_instance = db.user.find_one({"_id": ObjectId(oid)})
     return template('user_form', locals())
+
 @route('/<item>/delete/<oid>/')
 @route('/<item>/delete/<oid>/', method="POST")
 def delete(item, oid):
@@ -480,16 +486,23 @@ def temperature(oid):
 @route('/control')
 @route('/control', method="post")
 def control():
+    """ 监控管理
+    """
+    dic = {'server':'server_monitor',
+           'web':'web_monitor',
+           'temp':'temp_monitor'}
     if request.method == "POST":
         item=request.forms.get('item')
-        if item == 'server':
-            update(db.control.find_one()['_id'], db.control,{'server_monitor':False})
-        elif item == 'web':
-            update(db.control.find_one()['_id'], db.control,{'web_monitor':False})
-        elif item == 'temp':
-            update(db.control.find_one()['_id'], db.control,{'temp_monitor':False})
+        if item in ('server', 'web', 'temp'):
+            update(db.control.find_one()['_id'], db.control,
+                   {item+'_monitor':False})
         else:
             abort(404)
+        redirect('/control')
+    what = request.urlparts[3]
+    if what in ('server', 'web', 'temp'):
+        update(db.control.find_one()['_id'], db.control,
+               {what+'_monitor':True})
         redirect('/control')
     control = db.control.find_one()
     return template('control', locals())

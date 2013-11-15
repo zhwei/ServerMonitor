@@ -23,20 +23,23 @@ ser = Serial(0)
 
 def temperature():
     t = []
-    while db.control.find_one()['temp_monitor']:
-        c = ser.read()
-        if c == "\r":
-            temp = ''.join(t[2:])
-            temp1 = {
-                "name": "room_611",
-                "description": "鸿远楼611室",
-                "temp": float   (temp)/1000,
-                "datetime": datetime.datetime.now()
-            }
-            db.temperature.insert(temp1)
-            print temp1
-            t = []
+    while True:
+        if db.control.find_one()['temp_monitor']:
+            c = ser.read()
+            if c == "\r":
+                temp = ''.join(t[2:])
+                temp1 = {
+                    "name": "room_611",
+                    "description": "鸿远楼611室",
+                    "temp": float   (temp)/1000,
+                    "datetime": datetime.datetime.now()
+                }
+                db.temperature.insert(temp1)
+                print temp1
+                t = []
+            else:
+                t.append(c)
         else:
-            t.append(c)
+            pass
 
 temperature()

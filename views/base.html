@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>{% block title %}{% endblock %}</title>
+    <title>{% block title %}{% endblock %}&middot;现代教育技术中心服务监控</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -56,7 +56,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="brand" href="/">ServerMonitor</a>
+          <a class="brand" href="/">教育技术中心服务监控平台&nbsp;&middot;&nbsp;ServerMonitor</a>
           <div class="nav-collapse collapse">
             <p class="navbar-text pull-right">
                 <a href="/logout" class="btn btn-danger">注销</a>
@@ -76,32 +76,27 @@
                 <div class="well sidebar-nav">
                     <ul class="nav nav-list">
                       {% set navigation_bar = [
-                            ('/','admin_index','网站后台'),
-                            ('', '', '监控控制台'),
-                            ('/control', 'control', '监控控制台'),
-                            ('', '', '服务器相关'),
-                            ('/server/list', 'server_list', '服务器列表'),
-                            ('/server/add', 'server_add', '添加服务器'),
-                            ('', '', '网站相关'),
-                            ('/web/list','web_list','网站列表'),
-                            ('/web/add','web_add','添加网站'),
-                            ('','','机房'),
-                            ('/location/list','location_list','机房列表'),
-                            ('/location/add','location_add','添加机房'),
-                            ('','','用户管理'),
-                            ('/user/list','user_list','管理用户'),
-                            ('/user/add','user_add','添加管理员')
+                            ('/','admin_index','网站后台','align-justify'),
+                            ('', '', '监控控制台',''),
+                            ('/control', 'control', '监控控制台','cog'),
+                            ('', '', '服务器相关',''),
+                            ('/server/list', 'server_list', '服务器列表','tasks'),
+                            ('/server/add', 'server_add', '添加服务器','plus'),
+                            ('', '', '网站相关',''),
+                            ('/web/list','web_list','网站列表','globe'),
+                            ('/web/add','web_add','添加网站','plus'),
+                            ('','','机房',''),
+                            ('/location/list','location_list','机房列表','home'),
+                            ('/location/add','location_add','添加机房','plus'),
+                            ('','','用户管理',''),
+                            ('/user/list','user_list','管理用户','user'),
+                            ('/user/add','user_add','添加管理员','plus-sign')
                         ] -%}
                         {% set active_page = active_page|default('admin_index') -%}
-                        {% for href, id, caption in navigation_bar %}
-                          <li
-                                  {% if id == active_page %}
-                                      class="active"
-                                  {% elif href=='' %}
-                                      class="nav-header"
-                                  {% endif %}>
+                        {% for href, id, caption, icon in navigation_bar %}
+                          <li {% if id == active_page %}class="active"{% elif href=='' %}class="nav-header"{% endif %}>
                             {% if href !='' %}
-                            <a href="{{ href|e }}">{{ caption|e }}</a>
+                            <a href="{{ href|e }}"><i class="icon-{{ icon }}"></i>{{ caption|e }}</a>
                             {% else %}
                                 {{ caption|e }}
                             {% endif %}

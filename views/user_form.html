@@ -28,11 +28,16 @@
             {% else %}
             <legend>修改用户</legend>
             {% endif %}
-
+            {% if error %}
+                <div class="alert alert-block">
+                <p>{{ error }}</p>
+                </div>
+            {% endif %}
             {{ form.input(name='username', label='用户名', value=user_instance.username) }}
             {{ form.input(name='password', label='密码') }}
             {{ form.input(name='real_name', label='真实姓名', value=user_instance.real_name) }}
         </fieldset>
+            <a href="/user/list" class="btn">返回</a>&nbsp;
             {{ form.submit(value="提交") }}
     </form>
 </div>

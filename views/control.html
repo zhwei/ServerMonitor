@@ -4,6 +4,8 @@
 监控控制台
 {% endblock %}
 
+{% set active_page = "control" %}
+
 {% block content %}
 <div class="hero-unit">
     <h4>控制区</h4>
@@ -11,21 +13,21 @@
     <p><b class="text-error">谨慎操作！</b></p>
     <p>服务器监控：
         {% if control.server_monitor != True %}
-        <a href="#" class="btn btn-primary">启动服务器监控</a>
+        <a href="?server" class="btn btn-primary">启动服务器监控</a>
         {% else %}
         <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#server">停止服务器监控</a>
         {% endif %}
     </p>
     <p>网站监控：&nbsp;&nbsp;&nbsp;&nbsp;
         {% if control.web_monitor != True %}
-        <a href="#" class="btn btn-primary">启动网站监控</a>
+        <a href="?web" class="btn btn-primary">启动网站监控</a>
         {% else %}
         <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#web">停止网站监控</a>
         {% endif %}
     </p>
     <p>温度监控：&nbsp;&nbsp;&nbsp;&nbsp;
         {% if control.temp_monitor != True %}
-        <a href="#" class="btn btn-primary">启动温度监控</a>
+        <a href="?temp" class="btn btn-primary">启动温度监控</a>
         {% else %}
         <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#temp">停止温度监控</a>
         {% endif %}
