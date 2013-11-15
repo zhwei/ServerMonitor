@@ -396,8 +396,19 @@ def delete(item, oid):
     name = find_one(obj, oid)[main]
     return template('confirm_delete', name=name, oid=oid)
 
+#@route('/history')
+#def history():
+#    items = {'cpu':'CPU', 'mem':'内存',
+#             'load_1':'每一分钟负载',
+#             'load_5':'每五分钟负载',
+#             'load_15':'每十五分钟负载',
+#             'total':'网站访问总时间',
+#             'connect':'链接时间',
+#             'lookup':'域名解析时间',}
+#    return template('history')
+
 @route('/<item>/<oid>/<num>/<t>/')
-def history(item, oid, num,t=1):
+def history_items(item, oid, num,t=1):
     """
     The canvas's history
     item: server -- cpu, mem, load<1, 5, 15>
@@ -409,6 +420,9 @@ def history(item, oid, num,t=1):
     elif item in ('total', 'connect', 'lookup'):
         father, son=db.web, db.web_status
         id_name='web_ID'
+    elif item == 'temp':
+        father, son=db.server, db.temperature
+        id_name='server_ID'
     else:
         abort(404)
 
@@ -446,21 +460,30 @@ def history(item, oid, num,t=1):
     elif item == 'lookup':
         data_list=[i['name_look_up'] for i in status_list]
         name='域名解析时间'
+    elif item == 'temp':
+        data_list=[t['temp'] for t in status_list]
+        name='温度'
     else:
         abort(404)
     return template("history", locals())
 
-@route("/temp")
-def temperature():
+@route("/temp/<oid>/")
+def temperature(oid):
     """
      db.Account.find().sort("UserName",pymongo.ASCENDING)   --升序
      db.Account.find().sort("UserName",pymongo.DESCENDING)  --降序
     """
-    datas = db.temperatures.find().sort('datetime', -1).limit(10)
-    labels = [i for i in range(10)]
-    datas = [t for t in datas]
-    return template('temp', labels=labels, datas=datas)
+    datas = db.temperatures.find({'server_ID':ObjectId(oid)}).sort('datetime', -1).limit(10)
+    temp_list = [t['temp'] for t in datas]
+    return template('temp', locals())
 
+@route('/control')
+@route('/control', method="post")
+def control():
+    if request.method == "post":
+        return 'post'
+    #db.control.
+    return template('control', locals())
 
 def dev_server():
     run(app=app,host='0.0.0.0', port=8080, debug=True)

@@ -36,16 +36,16 @@ def main_thread():
             print('queue not empty!')
             queue.queue.clear()
 
-        servers = db.server.find()
-        for s in servers:
-            _task = ('server', s['_id'])
-            with lock:
-                queue.put(_task)
-
-        for w in db.web.find():
-            _task = ('web', w['_id'])
-            with lock:
-                queue.put(_task)
+        if db.control.find_one()['server_monitor']:
+            for s in db.server.find():
+                _task = ('server', s['_id'])
+                with lock:
+                    queue.put(_task)
+        if db.control.find_one()['web_monitor']:
+            for w in db.web.find():
+                _task = ('web', w['_id'])
+                with lock:
+                    queue.put(_task)
 
         daemon = threading.Thread(name='daemon thread %s' % time.time(),
                                   target=daemon_thread())

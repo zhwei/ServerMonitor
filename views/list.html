@@ -56,7 +56,8 @@
                     <td>{{ location.location }}</td>
                     <td>{{ location.description }}</td>
                     <td>{{ location.notes }}</td>
-                    <td><a href="/location/update/{{ location._id }}/">修改</a>|
+                    <td><a href="/temp/{{ location._id }}/">温度</a>|
+                        <a href="/location/update/{{ location._id }}/">修改</a>|
                         <a href="/location/delete/{{ location._id }}/">删除</a></td>
                 </tr>
             {% endfor %}
@@ -72,6 +73,8 @@
                         <span class="label label-success">正常</span>
                     {% elif web.status_now == 1 %}
                         <span class="label label-important">无法连接</span>
+                    {% elif web.status_now == 2 %}
+                        <span class="label label-important">url类型错误</span>
                     {% else %}
                         <span class="label">等候初始化</span>
                     {% endif %}

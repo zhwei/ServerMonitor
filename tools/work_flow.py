@@ -104,7 +104,10 @@ from web_monitor import WebMonitor
 def create_web_status(oid):
     try:
         target = db.web.find_one({"_id":ObjectId(oid)})
-        monitor = WebMonitor(target['url'])
+        try:
+            monitor = WebMonitor(target['url'])
+        except TypeError:
+            set_web(oid, {'status_now': 2,})
         dic = {
             'web_ID': oid,
             'title': monitor.get_title(),

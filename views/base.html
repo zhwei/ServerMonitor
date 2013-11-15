@@ -64,7 +64,6 @@
             <ul class="nav">
               {% block nav %}
               {% endblock %}
-              <li><a href="/temp">机房温度</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
@@ -78,6 +77,8 @@
                     <ul class="nav nav-list">
                       {% set navigation_bar = [
                             ('/','admin_index','网站后台'),
+                            ('', '', '监控控制台'),
+                            ('/control', 'control', '监控控制台'),
                             ('', '', '服务器相关'),
                             ('/server/list', 'server_list', '服务器列表'),
                             ('/server/add', 'server_add', '添加服务器'),
