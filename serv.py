@@ -26,7 +26,7 @@ from socket import error as SocketError
 
 from conf import STATIC_DIR
 from tools.db import find_one, check_code
-from tools.db import create_user as db_create_user, update_user as db_update_user
+from tools.db import create_user as db_create_user, update_user as db_update_user, update
 from tools.work_flow import init_server
 
 con = Connection()
@@ -480,9 +480,18 @@ def temperature(oid):
 @route('/control')
 @route('/control', method="post")
 def control():
-    if request.method == "post":
-        return 'post'
-    #db.control.
+    if request.method == "POST":
+        item=request.forms.get('item')
+        if item == 'server':
+            update(db.control.find_one()['_id'], db.control,{'server_monitor':False})
+        elif item == 'web':
+            update(db.control.find_one()['_id'], db.control,{'web_monitor':False})
+        elif item == 'temp':
+            update(db.control.find_one()['_id'], db.control,{'temp_monitor':False})
+        else:
+            abort(404)
+        redirect('/control')
+    control = db.control.find_one()
     return template('control', locals())
 
 def dev_server():

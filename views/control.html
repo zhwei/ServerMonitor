@@ -5,39 +5,89 @@
 {% endblock %}
 
 {% block content %}
-<div class="span12">
-<div class="btn-group">
-    <p><a href="#" class="btn btn-large btn-danger">停止网站监控</a></p>
+<div class="hero-unit">
+    <h4>控制区</h4>
+
+    <p><b class="text-error">谨慎操作！</b></p>
+    <p>服务器监控：
+        {% if control.server_monitor != True %}
+        <a href="#" class="btn btn-primary">启动服务器监控</a>
+        {% else %}
+        <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#server">停止服务器监控</a>
+        {% endif %}
+    </p>
+    <p>网站监控：&nbsp;&nbsp;&nbsp;&nbsp;
+        {% if control.web_monitor != True %}
+        <a href="#" class="btn btn-primary">启动网站监控</a>
+        {% else %}
+        <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#web">停止网站监控</a>
+        {% endif %}
+    </p>
+    <p>温度监控：&nbsp;&nbsp;&nbsp;&nbsp;
+        {% if control.temp_monitor != True %}
+        <a href="#" class="btn btn-primary">启动温度监控</a>
+        {% else %}
+        <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#temp">停止温度监控</a>
+        {% endif %}
+    </p>
 </div>
+
+<div id="server" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3>危险操作</h3>
+  </div>
+  <div class="modal-body">
+    <p>你确定要关闭服务器监控服务吗？</p>
+    <p>停止后将不能实时记录服务器的状况！</p>
+  </div>
+  <div class="modal-footer">
+      <form method="post">
+        <input type="hidden" name="item" value="server"  />
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <input type="submit" value="确认" class="btn btn-danger" />
+      </form>
+  </div>
 </div>
-<div class="row-fluid">
-    <div class="span12">
-        <div class="tabbable" id="tabs-269537">
-            <ul class="nav nav-tabs">
-                <li class="active">
-                    <a href="#panel-331563" data-toggle="tab">第一部分</a>
-                </li>
-                <li>
-                    <a href="#panel-40132" data-toggle="tab">第二部分</a>
-                </li>
-            </ul>
-            <div class="tab-content">
-                <div class="tab-pane active" id="panel-331563">
-                    <p>
-                        第一部分内容.
-                    </p>
-                </div>
-                <div class="tab-pane" id="panel-40132">
-                    <p>
-                        第二部分内容.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
+<div id="web" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3>危险操作</h3>
+  </div>
+  <div class="modal-body">
+    <p>你确定要关闭网站监控服务吗？</p>
+    <p>停止后将不能实时记录网站的状况！</p>
+  </div>
+  <div class="modal-footer">
+      <form method="post">
+        <input type="hidden" name="item" value="web"  />
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <input type="submit" value="确认" class="btn btn-danger" />
+      </form>
+  </div>
 </div>
+<div id="temp" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3>危险操作</h3>
+  </div>
+  <div class="modal-body">
+    <p>你确定要关闭温度监控服务吗？</p>
+    <p>停止后将不能实时记录机房的温度状况！</p>
+  </div>
+  <div class="modal-footer">
+      <form method="post">
+        <input type="hidden" name="item" value="temp"  />
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <input type="submit" value="确认" class="btn btn-danger" />
+      </form>
+  </div>
+</div>
+
+
 {% endblock %}
 
 {% block foot %}
     <script src="/static/js/bootstrap-tab.js"></script>
+    <script src="/static/js/bootstrap-modal.js"></script>
 {% endblock %}

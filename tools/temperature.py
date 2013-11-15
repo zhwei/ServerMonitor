@@ -38,3 +38,5 @@ def temperature():
             t = []
         else:
             t.append(c)
+
+temperature()
