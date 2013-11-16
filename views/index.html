@@ -18,4 +18,57 @@
         <p>请谨慎操作！</p>
     </div>
 
+<div>
+    <table class="table table-hover">
+        <tr>
+            <th>类型</th>
+            <th>名称</th>
+            <th>实时状况</th>
+        </tr>
+        {% if servers %}
+            {% for server in servers %}
+            <tr>
+                <td><span class="badge badge-info">服务器</span></td>
+                <td><a href="/server/detail/{{ server._id }}/">{{ server.name }}</a></td>
+                <td>
+                    {% if server.status_now == 0 %}
+                        <span class="label label-success">正常</span>
+                    {% elif server.status_now == 1 %}
+                        <span class="label label-important">无法连接</span>
+                    {% else %}
+                        <span class="label">等候初始化</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        {% endif %}
+        {% if webs %}
+            {% for web in webs %}
+                <tr>
+                    <td><span class="badge badge-inverse">网站</span></td>
+                    <td><a href="/web/detail/{{ web._id }}/">{{ web.name }}</a></td>
+                    <td>
+                    {% if web.status_now == 0 %}
+                        <span class="label label-success">正常</span>
+                    {% elif web.status_now == 1 %}
+                        <span class="label label-important">无法连接</span>
+                    {% elif web.status_now == 2 %}
+                        <span class="label label-important">url类型错误</span>
+                    {% else %}
+                        <span class="label">等候初始化</span>
+                    {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+
+    </table>
+
+</div>
+
+
+{% endblock %}
+
+{% block foot %}
+    <script src="/static/js/bootstrap-carousel.js"></script>
 {% endblock %}

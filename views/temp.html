@@ -7,39 +7,33 @@
 {% set active_page = "temp" %}
 
 {% block content %}
-
-    <canvas id="myChart" width="700" height="400"></canvas>
+    <div class="span9">
+    <p>机房温度：</p>
+    <p><a href="/temp/{{ oid }}/20/1/"></a></p>
+    <canvas id="myChart" width="700" height="400" data-type="Line" data-list="{{ data_list }}"></canvas>
     <p>现在 --- > (每十秒) -- ></p>
+    </div>
 {% endblock %}
 
 {% block foot %}
     <script>
-    //Get context with jQuery - using jQuery's .get() method.
-    var ctx = $("#myChart").get(0).getContext("2d");
-    //This will get the first returned node in the jQuery collection.
-    var myNewChart = new Chart(ctx);
-
-    var data = {
-	labels : [
-        {% for t in labels %}
-            "{{ t }}",
-        {% endfor %}
-    ],
-	datasets : [
-		{
-			fillColor : "rgba(220,220,220,0.5)",
-			strokeColor : "rgba(220,220,220,1)",
-			pointColor : "rgba(220,220,220,1)",
-			pointStrokeColor : "#fff",
-			data : [
-                {% for tt in datas %}
-                    {{ tt.temp }},
-                {% endfor %}
-            ]
-		}
-	]
-    };
-    new Chart(ctx).Line(data);
+        $("canvas").each(function(){
+			var $canvas = $(this);
+			var ctx = this.getContext("2d");
+            var data = {
+                labels : ['最新',1,2,3,4,5,6,7,8,'较旧'],
+                datasets : [
+                    {
+                        fillColor : "rgba(151,187,205,0.5)",
+                        strokeColor : "rgba(151,187,205,1)",
+                        pointColor : "rgba(151,187,205,1)",
+                        pointStrokeColor : "#fff",
+                        data : $canvas.data('list')
+                    }
+                ]};
+			var evalString = "new Chart(ctx)." + $canvas.data("type") + "(data);";
+			eval(evalString);
+		});
     </script>
 
 {% endblock %}

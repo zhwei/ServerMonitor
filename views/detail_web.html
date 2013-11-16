@@ -2,7 +2,13 @@
 
 {% block title %}{{ wb.name }}的详细信息{% endblock %}
 
+{% set current_page = '网站详情' %}
+
 {% block content %}
+
+{% if last_status is not defined %}
+    {% set last_status = '' %}
+{% endif %}
 
 <ul class="breadcrumb">
     <li><a href="/">网站后台</a><span class="divider">/</span></li>
@@ -50,18 +56,21 @@
         </div>
         </div>
 
+    <div class="row-fluid">
+
+    </div>
     <h3>近期访问时间</h3>
     <div class="row-fluid">
         <div class="span4">
-            <p><b>总时间</b>(秒)</p>
+            <p><b>总时间</b>(秒)<a href="/total/{{ oid }}/20/1/">更多</a></p>
             <canvas id="total_time_list" data-type="Line" data-list="{{ total_time_list }}" class="span4"></canvas>
         </div>
         <div class="span4">
-            <p><b>连接时间</b>(秒)</p>
+            <p><b>连接时间</b>(秒)<a href="/connect/{{ oid }}/20/1/">更多</a></p>
             <canvas id="connect_time_list" data-type="Line" data-list="{{ connect_time_list }}" class="span4"></canvas>
         </div>
         <div class="span4">
-            <p><b>域名解析时间</b>(秒)</p>
+            <p><b>域名解析时间</b>(秒)<a href="/lookup/{{ oid }}/20/1/">更多</a></p>
             <canvas id="name_look_up_list" data-type="Line" data-list="{{ name_look_up_list }}" class="span4"></canvas>
         </div>
     </div>
@@ -86,7 +95,7 @@
 			var $canvas = $(this);
 			var ctx = this.getContext("2d");
             var data = {
-                labels : [1,2,3,4,5,6,7,8,9,10],
+                labels : ['最新',1,2,3,4,5,6,7,8,'较旧'],
                 datasets : [
                     {
                         fillColor : "rgba(151,187,205,0.5)",

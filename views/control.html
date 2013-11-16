@@ -1,0 +1,122 @@
+{% extends 'base' %}
+
+{% block title %}
+监控控制台
+{% endblock %}
+
+{% set active_page = "control" %}
+
+{% block content %}
+
+<div class="hero-unit">
+<h4>监控状态</h4>
+
+<p>服务器监控运行时间：
+    {% if control.server_date %}
+    <b><span class="badge badge-success">{{ (now - control.server_date).day|default(0) }}</span></b>天
+    {% else %}
+    <b><span class="badge badge-warning">未启动</span></b>
+    {% endif %}
+</p>
+<p>网站监控运行时间：
+    {% if control.web_date %}
+    <b><span class="badge badge-success">{{ (now - control.web_date).day|default(0) }}</span></b>天
+    {% else %}
+    <b><span class="badge badge-warning">未启动</span></b>
+    {% endif %}
+</p>
+<p>温度监控运行时间：
+    {% if control.temp_date %}
+    <b><span class="badge badge-success">{{ (now - control.temp_date).day|default(0) }}</span></b>天
+    {% else %}
+    <b><span class="badge badge-warning">未启动</span></b>
+    {% endif %}
+</p>
+</div>
+
+<div class="hero-unit">
+    <h4>控制区</h4>
+
+    <p><b class="text-error">谨慎操作！</b></p>
+    <p>服务器监控：
+        {% if control.server_monitor != True %}
+        <a href="?server" class="btn btn-primary">启动服务器监控</a>
+        {% else %}
+        <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#server">停止服务器监控</a>
+        {% endif %}
+    </p>
+    <p>网站监控：&nbsp;&nbsp;&nbsp;&nbsp;
+        {% if control.web_monitor != True %}
+        <a href="?web" class="btn btn-primary">启动网站监控</a>
+        {% else %}
+        <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#web">停止网站监控</a>
+        {% endif %}
+    </p>
+    <p>温度监控：&nbsp;&nbsp;&nbsp;&nbsp;
+        {% if control.temp_monitor != True %}
+        <a href="?temp" class="btn btn-primary">启动温度监控</a>
+        {% else %}
+        <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#temp">停止温度监控</a>
+        {% endif %}
+    </p>
+</div>
+
+<div id="server" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3>危险操作</h3>
+  </div>
+  <div class="modal-body">
+    <p>你确定要关闭服务器监控服务吗？</p>
+    <p>停止后将不能实时记录服务器的状况！</p>
+  </div>
+  <div class="modal-footer">
+      <form method="post">
+        <input type="hidden" name="item" value="server"  />
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <input type="submit" value="确认" class="btn btn-danger" />
+      </form>
+  </div>
+</div>
+<div id="web" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3>危险操作</h3>
+  </div>
+  <div class="modal-body">
+    <p>你确定要关闭网站监控服务吗？</p>
+    <p>停止后将不能实时记录网站的状况！</p>
+  </div>
+  <div class="modal-footer">
+      <form method="post">
+        <input type="hidden" name="item" value="web"  />
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <input type="submit" value="确认" class="btn btn-danger" />
+      </form>
+  </div>
+</div>
+<div id="temp" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3>危险操作</h3>
+  </div>
+  <div class="modal-body">
+    <p>你确定要关闭温度监控服务吗？</p>
+    <p>停止后将不能实时记录机房的温度状况！</p>
+  </div>
+  <div class="modal-footer">
+      <form method="post">
+        <input type="hidden" name="item" value="temp"  />
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <input type="submit" value="确认" class="btn btn-danger" />
+      </form>
+  </div>
+</div>
+
+
+{% endblock %}
+
+{% block foot %}
+    <script src="/static/js/bootstrap-tab.js"></script>
+    <script src="/static/js/bootstrap-modal.js"></script>
+{% endblock %}

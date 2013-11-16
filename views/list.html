@@ -9,6 +9,9 @@
 {% elif webs %}
     {% set ths=['网站','所在服务器','描述','实时状况'] %}
     {% set active_page = "web_list" %}
+{% elif users %}
+    {% set ths=['用户名', '真实姓名','管理'] %}
+    {% set active_page = 'user_list' %}
 {% endif %}
 
 {% block title %}
@@ -50,11 +53,14 @@
         {% if locations %}
             {% for location in locations %}
                 <tr>
-                    <td>{{ location.location }}</td>
+                    <td><a href="/location/detail/{{ location._id }}/">{{ location.location }}</a></td>
                     <td>{{ location.description }}</td>
                     <td>{{ location.notes }}</td>
-                    <td><a href="/location/update/{{ location._id }}/">修改</a>|
-                        <a href="/location/delete/{{ location._id }}/">删除</a></td>
+                    <td>
+                        <a href="/temp/{{ location._id }}/">温度</a>|
+                        <a href="/location/update/{{ location._id }}/">修改</a>|
+                        <a href="/location/delete/{{ location._id }}/">删除</a>
+                    </td>
                 </tr>
             {% endfor %}
         {% endif %}
@@ -69,12 +75,28 @@
                         <span class="label label-success">正常</span>
                     {% elif web.status_now == 1 %}
                         <span class="label label-important">无法连接</span>
+                    {% elif web.status_now == 2 %}
+                        <span class="label label-important">url类型错误</span>
                     {% else %}
                         <span class="label">等候初始化</span>
                     {% endif %}
                     </td>
                 </tr>
             {% endfor %}
+        {% endif %}
+        {% if users %}
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.real_name }}</td>
+                    <td>
+                        <a href="/user/update/{{ user._id }}/" class="btn btn-small btn-inverse">编辑用户</a>
+                        <a href="/user/delete/{{ user._id }}/" class="btn btn-small btn-danger">删除用户</a>
+                    </td>
+                </tr>
+            {% endfor %}
+
+
         {% endif %}
 
     </table>

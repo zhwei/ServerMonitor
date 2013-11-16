@@ -4,6 +4,8 @@
 服务器{{ ser.name }}
 {% endblock %}
 
+{% set current_page = '服务器详情' %}
+
 {% block content %}
 
 <ul class="breadcrumb">
@@ -102,12 +104,14 @@
     <div class="row-fluid">
         <div class="span4">
             <h4><b>CPU使用率(%)</b></h4>
+            <p><a href="/cpu/{{ oid }}/20/1/">更多</a></p>
             <br/><br/><br/>
             <canvas id="cpu-usage" class="can" data-type="Line" data-list="{{ cpu_usage_list }}"></canvas>
         </div>
         {% if last_time %}
         <div class="span4">
             <h4><b>内存使用率(%)</b></h4>
+            <p><a href="/mem/{{ oid }}/20/1/">更多</a></p>
             <p>内存总量：<b class="text-success">{{ last_time.mem_info.mem_total|filesizeformat }}</b></p>
             <p>已使用：<b class="text-warning">{{ last_time.mem_info.mem_used|filesizeformat }}</b></p>
             <canvas id="mem-info" data-type="Line" data-list="{{ mem_info_list }}"></canvas>
@@ -115,33 +119,9 @@
         {% endif %}
     </div>
 
-    <h4>系统平均负载</h4>
-{#    <p>最后PID: <span class="text-error">{{ last_time.load_avg.last_pid }}</span></p>#}
-{#    <p>NR: <span class="text-error">{{ last_time.load_avg.nr }}</span></p>#}
-    <div class="row-fluid">
-{#        <div class="span4">#}
-{#            <p><b>最近一分钟：</b></p>#}
-{#            <canvas id="load_avg_1" data-type="Line" data-list="{{ load_avg_1 }}" ></canvas>#}
-{#        </div>#}
-{#        <div class="span4">#}
-{#            <p><b>最近五分钟：</b></p>#}
-{#            <canvas id="load_avg_5" data-type="Line" data-list="{{ load_avg_5 }}" ></canvas>#}
-{#        </div>#}
-{#        <div class="span4">#}
-{#            <p><b>最近十五分钟：</b></p>#}
-{#            <canvas id="load_avg_15" data-type="Line" data-list="{{ load_avg_15 }}" ></canvas>#}
-{#        </div>#}
-    </div>
-
     <div class="clearfix"><br/><br/><br/></div>
-    <div class="row-fluid">
-        <div class="alert alert-block">
-            <h4>谨慎操作</h4><br/>
-            <a class="btn" href="/server/init/{{ ser._id }}/"><i class="icon-refresh"></i>初始化信息</a>
-            <a class="btn btn-warning" href="/server/update/{{ ser._id }}/"><i class="icon-pencil"></i>修改</a>
-            <a class="btn btn-danger" href="/server/delete/{{ ser._id }}/"><i class="icon-trash"></i>删除</a>
-        </div>
-    </div>
+
+    {% include 'detail_server_footer' %}
 
 {% endblock %}
 
@@ -152,7 +132,7 @@
 			var $canvas = $(this);
 			var ctx = this.getContext("2d");
             var data = {
-                labels : [1,2,3,4,5,6,7,8,9,10],
+                labels : ['最新',1,2,3,4,5,6,7,8,'较旧'],
                 datasets : [
                     {
                         fillColor : "rgba(151,187,205,0.5)",
