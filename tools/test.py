@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#import xmlrpclib
+import xmlrpclib
 #
 ##server = xmlrpclib.ServerProxy("http://192.168.1.225:1234")
-#server = xmlrpclib.ServerProxy("http://210.44.176.241:1234")
+server = xmlrpclib.ServerProxy("http://210.44.176.213:1234")
 ##
-#print server.get_system()
+print server.get_system()
 
 #from tools.db import create_user
 
