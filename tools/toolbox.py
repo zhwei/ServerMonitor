@@ -159,3 +159,14 @@ def create_web_status(oid):
         set_web_status(dic)
     except SocketError:
         set_web(oid, {'status_now': 1,})
+
+
+def on_create_server(oid):
+    """ when create server
+    """
+    init_server(oid)
+    create_server_status(oid)
+
+def on_create_web(oid):
+    init_web(oid)
+    create_web_status(oid)

@@ -25,7 +25,7 @@
             </div>
         {% endif %}
     </div>
-
+    {% if uptime %}
     <div class="row-fluid">
         <p><b>正常运行时间：</b></p>
         <h2><span class="text-success">{{ up_time.day }}</span>天
@@ -34,6 +34,8 @@
         <span class="text-error">{{ up_time.second }}</span>秒</h2>
         <br/>
     </div>
+    {% endif %}
+
 
     <div class="row-fluid">
         <div class="span4">
@@ -50,9 +52,9 @@
     <div class="row-fluid">
         <div class="span4">
             <h4>系统信息</h4>
-            <p>主机名：<b>{{ ser.host }}</b></p>
+            <p>主机名：<b>{{ ser.node }}</b></p>
             <p>操作系统：<b>{{ ser.system }}</b></p>
-            <p>发行版(具体)：<b>{{ ser.uname[2] }}</b></p>
+            <p>发行版(具体)： </p><p><b>{{ ser.uname[3] }}</b></p>
             <p><b></b></p>
         </div>
         <div class="span4">

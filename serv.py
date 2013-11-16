@@ -15,9 +15,10 @@ from socket import error as SocketError
 from bottle import jinja2_template as template
 from beaker.middleware import SessionMiddleware
 
+
 from tools.db import find_one, check_code
 from conf import STATIC_DIR, COOKIE_EXPIRES
-from tools.toolbox import init_server, init_log
+from tools.toolbox import init_server, init_log, init_web, on_create_server
 from tools.db import create_user as db_create_user, db,\
     update_user as db_update_user, update_monitor_status
 
@@ -117,6 +118,18 @@ def list(name):
         abort(404)
     return template('list', locals())
 
+def init_info(item,oid):
+    from requests import ConnectionError
+    try:
+        if item == "server":
+            on_create_server(oid)
+        elif item == "web":
+            init_web(oid)
+    except SocketError:
+        return index_error('无法连接，请检查网络或者配置是否正确。')
+    except ConnectionError:
+        return index_error("网站无法链接，请检查配置是否正确！")
+
 @route('/server/add')
 @route('/server/add', method='POST')
 def create_server():
@@ -143,36 +156,24 @@ def create_server():
         _date = request.forms.get('date')
         _location_ID=request.forms.get('location')
 
+        date_now = datetime.datetime.now()
         server1 = {
             "name": _name,
             "ip": _ip,
             "description": _description,
             "date": _date,
             "location_ID": _location_ID,
+            "datetime": date_now,
         }
         db.server.insert(server1)
+        init_info('server', db.server.find_one({'datetime':date_now})['_id'])
         redirect('list')
 
     locations=[(l['_id'],l['location']) for l in db.location.find()]
     return template('server_form', locals())
 
-from tools.toolbox import init_web
 
-@route('/<item>/init/<oid>/')
-def init_info(item,oid):
-    from requests import ConnectionError
-    try:
-        if item == "server":
-            init_server(oid)
-        elif item == "web":
-            init_web(oid)
-        else:
-            abort(404)
-    except SocketError:
-        return index_error('无法连接，请检查网络或者配置是否正确。')
-    except ConnectionError:
-        return index_error("网站无法链接，请检查配置是否正确！")
-    redirect('/%s/detail/%s/' %(item, oid))
+
 
 @route('/server/update/<oid>/',method='GET')
 @route('/server/update/<oid>/',method='POST')
@@ -216,25 +217,27 @@ def detail_server(oid):
         last_time = status_list[0]
     except IndexError:
         error="<a href='/init/%s/' class='btn btn-primary'>请初始化</a>"
-
-    if ser['system'] == "Linux":
-        try:
-            cpu_usage_list = [i['cpu_usage']*100 for i in status_list]
-            mem_info_list = [i['mem_info']['mem_used']/i['mem_info']['mem_total']*100 for i in status_list]
-            up_time = status_list[0]['up_time']
-            load_avg_1 = [float(i['load_avg']['lavg_1']) for i in status_list]
-            load_avg_5 = [float(i['load_avg']['lavg_5']) for i in status_list]
-            load_avg_15 = [float(i['load_avg']['lavg_15']) for i in status_list]
-            tpl_name='detail_server'
-        except IndexError:
-            return index_error('暂无历史记录<a href="/server/delete/%s/">删除</a>'% oid)
-    elif ser['system'] == "Windows":
-        try:
-            cpu_usage_list = [i['cpu_usage']*100 for i in status_list]
-            mem_info_list = [i['mem_info']['mem_used']/i['mem_info']['mem_total']*100 for i in status_list]
-            tpl_name="detail_server_win.html"
-        except IndexError:
-            return index_error('暂无历史记录<a href="/server/delete/%s/">删除</a>'% oid)
+    try:
+        if ser['system'] == "Linux":
+            try:
+                cpu_usage_list = [i['cpu_usage']*100 for i in status_list]
+                mem_info_list = [i['mem_info']['mem_used']/i['mem_info']['mem_total']*100 for i in status_list]
+                up_time = status_list[0]['up_time']
+                load_avg_1 = [float(i['load_avg']['lavg_1']) for i in status_list]
+                load_avg_5 = [float(i['load_avg']['lavg_5']) for i in status_list]
+                load_avg_15 = [float(i['load_avg']['lavg_15']) for i in status_list]
+                tpl_name='detail_server'
+            except IndexError:
+                return index_error('暂无历史记录<a href="/server/delete/%s/">删除</a>'% oid)
+        elif ser['system'] == "Windows":
+            try:
+                cpu_usage_list = [i['cpu_usage']*100 for i in status_list]
+                mem_info_list = [i['mem_info']['mem_used']/i['mem_info']['mem_total']*100 for i in status_list]
+                tpl_name="detail_server_win.html"
+            except IndexError:
+                return index_error('暂无历史记录<a href="/server/delete/%s/">删除</a>'% oid)
+    except KeyError:
+        tpl_name='detail_server'
 
     return template(tpl_name, locals())
 
