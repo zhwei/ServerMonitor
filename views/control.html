@@ -7,6 +7,33 @@
 {% set active_page = "control" %}
 
 {% block content %}
+
+<div class="hero-unit">
+<h4>监控状态</h4>
+
+<p>服务器监控运行时间：
+    {% if control.server_date %}
+    <b><span class="badge badge-success">{{ (now - control.server_date).day|default(0) }}</span></b>天
+    {% else %}
+    <b><span class="badge badge-warning">未启动</span></b>
+    {% endif %}
+</p>
+<p>网站监控运行时间：
+    {% if control.web_date %}
+    <b><span class="badge badge-success">{{ (now - control.web_date).day|default(0) }}</span></b>天
+    {% else %}
+    <b><span class="badge badge-warning">未启动</span></b>
+    {% endif %}
+</p>
+<p>温度监控运行时间：
+    {% if control.temp_date %}
+    <b><span class="badge badge-success">{{ (now - control.temp_date).day|default(0) }}</span></b>天
+    {% else %}
+    <b><span class="badge badge-warning">未启动</span></b>
+    {% endif %}
+</p>
+</div>
+
 <div class="hero-unit">
     <h4>控制区</h4>
 

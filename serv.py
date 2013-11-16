@@ -6,6 +6,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 import bottle
+import datetime
 from bottle import route, run, app, request, redirect, abort
 
 from pymongo import Connection
@@ -16,7 +17,7 @@ from beaker.middleware import SessionMiddleware
 
 from conf import STATIC_DIR
 from tools.db import find_one, check_code
-from tools.db import create_user as db_create_user, update_user as db_update_user, update
+from tools.db import create_user as db_create_user, update_user as db_update_user, update, update_monitor_status
 from tools.toolbox import init_server, init_log
 
 logger = init_log(log_name='bottle_server', level_name='info',fi=True)
@@ -494,17 +495,16 @@ def control():
     if request.method == "POST":
         item=request.forms.get('item')
         if item in ('server', 'web', 'temp'):
-            update(db.control.find_one()['_id'], db.control,
-                   {item+'_monitor':False})
+            update_monitor_status(item, False)
         else:
             abort(404)
         redirect('/control')
-    what = request.urlparts[3]
-    if what in ('server', 'web', 'temp'):
-        update(db.control.find_one()['_id'], db.control,
-               {what+'_monitor':True})
+    _what = request.urlparts[3]
+    if _what in ('server', 'web', 'temp'):
+        update_monitor_status(_what, True)
         redirect('/control')
     control = db.control.find_one()
+    now = datetime.datetime.now()
     return template('control', locals())
 
 def dev_server():
