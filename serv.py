@@ -513,6 +513,7 @@ def control():
 def dev_server():
     run(app=app,host='0.0.0.0', port=8080, debug=True)
 
-if '__main__' == __name__:
-    from django.utils import autoreload
-    autoreload.main(dev_server)
+#if '__main__' == __name__:
+    #from django.utils import autoreload
+    #autoreload.main(dev_server)
+    #run(app=app, host='0.0.0.0', port=8080, server='gunicorn')
