@@ -1,0 +1,15 @@
+#!/bin/sh
+
+GUNICORN=/usr/local/bin/gunicorn
+ROOT=/home/group/ServerMonitor
+PID=/var/run/gunicorn-server-monitor.pid
+
+APP=serv:app
+IP=127.0.0.1:5566
+
+if [ -f $PID ]; then
+        rm $PID
+fi
+
+cd $ROOT
+exec $GUNICORN --pid=$PID $APP -D -b $IP

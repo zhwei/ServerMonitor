@@ -48,9 +48,9 @@ def check_login():
             redirect('/login?%s'%request.path)
 
 
-@route('/static/<filename:path>')
-def send_static(filename):
-    return bottle.static_file(filename, root=STATIC_DIR)
+#@route('/static/<filename:path>')
+#def send_static(filename):
+#    return bottle.static_file(filename, root=STATIC_DIR)
 
 @route("/")
 def index():
@@ -512,8 +512,13 @@ def control():
     now = datetime.datetime.now()
     return template('control', locals())
 
-#def dev_server():
-#    run(app=app,host='0.0.0.0', port=8080, debug=True)
+@bottle.error(404)
+@bottle.error(500)
+def serv_error(error):
+    return 'wrong page'
+
+def dev_server():
+    run(app=app,host='0.0.0.0', port=8080, debug=True)
 
 #if '__main__' == __name__:
     #from django.utils import autoreload
