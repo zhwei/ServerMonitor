@@ -152,10 +152,10 @@ class Proc:
         获取网卡流量信息 /proc/net/dev
         返回dict,单位byte
         """
-        with open(self.proc_file['NET_STAT']) as fi:
-            net_dump = fi.readlines()
-
-        device_data={}
+        fi = file(self.proc_file['NET_STAT'])
+        net_dump = fi.readlines()
+        fi.close()
+        device_data=dict()
         #data = namedtuple('data',['rx','tx'])
         for line in net_dump[2:]:
             line = line.split(':')
