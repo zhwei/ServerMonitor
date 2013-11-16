@@ -10,7 +10,7 @@
 
 #from tools.db import create_user
 
-#create_user('zhwei','zhw','张卫')
+#create_user('','','')
 
 #from tools.db import db
 #

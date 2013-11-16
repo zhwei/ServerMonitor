@@ -510,8 +510,8 @@ def control():
     now = datetime.datetime.now()
     return template('control', locals())
 
-def dev_server():
-    run(app=app,host='0.0.0.0', port=8080, debug=True)
+#def dev_server():
+#    run(app=app,host='0.0.0.0', port=8080, debug=True)
 
 #if '__main__' == __name__:
     #from django.utils import autoreload
