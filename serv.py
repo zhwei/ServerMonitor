@@ -206,6 +206,8 @@ def detail_server(oid):
     except:
         ser['location'] = u'<span style="color:red;">机房未找到'
 
+    webs = db.web.find({'server_ID': oid})
+
     status = db.server_status.find({'server_ID':ObjectId(oid)}).sort('datetime', -1).limit(10)
     status_list = [i for i in status]
     try:
