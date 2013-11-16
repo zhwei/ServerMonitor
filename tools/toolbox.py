@@ -2,14 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import os
-import time
 import logging
 import datetime
 import xmlrpclib
-from Queue import Queue
 import logging.handlers
-from threading import Thread
-from pymongo import Connection
 from bson.objectid import ObjectId
 from socket import error as SocketError
 

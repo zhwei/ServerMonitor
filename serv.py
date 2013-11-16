@@ -6,41 +6,36 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 import bottle
-import datetime
 from bottle import route, run, app, request, redirect, abort
 
+import datetime
 from pymongo import Connection
 from bson.objectid import ObjectId
 from socket import error as SocketError
 from bottle import jinja2_template as template
 from beaker.middleware import SessionMiddleware
 
-from conf import STATIC_DIR
 from tools.db import find_one, check_code
-from tools.db import create_user as db_create_user, update_user as db_update_user, update, update_monitor_status
+from conf import STATIC_DIR, COOKIE_EXPIRES
 from tools.toolbox import init_server, init_log
+from tools.db import create_user as db_create_user, db,\
+    update_user as db_update_user, update_monitor_status
 
 logger = init_log(log_name='bottle_server', level_name='info',fi=True)
 
-
-con = Connection()
-db = con.ServerMonitor
-
-# start flow
+# 启动监控轮询线程
 from tools.flow import start as flow_start
 flow_start()
 
+# Session Config
 session_opts = {
     'session.type': 'file',
-    'session.cookie_expires': 300,
+    'session.cookie_expires': COOKIE_EXPIRES,
     'session.data_dir': './sessions',
     'session.auto': True
 }
-
 app = SessionMiddleware(app(), session_opts)
 bottle.BaseTemplate.defaults['session'] = request.environ.get('beaker.session')
-
-
 
 @bottle.hook('before_request')
 def check_login():
@@ -273,6 +268,12 @@ def update_location(oid):
         redirect('/location/list')
     loc_instance = db.location.find_one({'_id':ObjectId(oid)})
     return template('loc_form', locals())
+
+@route('/location/detail/<oid>/')
+def detail_location(oid):
+    loc = db.location.find_one({'_id':ObjectId(oid)})
+    servers = db.server.find({'location_ID': oid})
+    return template('detail_loc', locals())
 
 @route('/web/add')
 @route('/web/add', method='POST')

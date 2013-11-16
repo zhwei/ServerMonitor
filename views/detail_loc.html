@@ -1,0 +1,74 @@
+{% extends 'base' %}
+
+{% block title %}{{ loc.location }}的详细信息{% endblock %}
+
+{% set current_page = '机房详情' %}
+
+{% block content %}
+
+{% if last_status is not defined %}
+    {% set last_status = '' %}
+{% endif %}
+
+<ul class="breadcrumb">
+    <li><a href="/">网站后台</a><span class="divider">/</span></li>
+    <li><a href="/location/list">机房</a><span class="divider">/</span></li>
+    <li class="active">{{ loc.location }}<span class="divider">/</span></li>
+</ul>
+
+    <div class="hero-unit">
+        <code>机房</code>
+        <h1>{{ loc.location }}</h1>
+        <br/>
+        <p>{{ loc.description }}</p>
+    </div>
+    <div class="row-fluid">
+        <h4>托管的服务器</h4>
+        <table class="table table-hover">
+            <tr>
+                <th>名称</th>
+                <th>描述</th>
+                <th>状况</th>
+            </tr>
+            {% for server in servers %}
+            <tr>
+                <td><a href="/server/detail/{{ server._id }}/">{{ server.name }}</a></td>
+                <td>{{ server.description }}</td>
+                <td>
+                    {% if server.status_now == 0 %}
+                        <span class="label label-success">正常</span>
+                    {% elif server.status_now == 1 %}
+                        <span class="label label-important">无法连接</span>
+                    {% else %}
+                        <span class="label">等候初始化</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+
+        </table>
+    </div>
+
+{% endblock %}
+
+{% block foot %}
+    <script>
+        $("canvas").each(function(){
+			var $canvas = $(this);
+			var ctx = this.getContext("2d");
+            var data = {
+                labels : ['最新',1,2,3,4,5,6,7,8,'较旧'],
+                datasets : [
+                    {
+                        fillColor : "rgba(151,187,205,0.5)",
+                        strokeColor : "rgba(151,187,205,1)",
+                        pointColor : "rgba(151,187,205,1)",
+                        pointStrokeColor : "#fff",
+                        data : $canvas.data('list')
+                    }
+                ]};
+			var evalString = "new Chart(ctx)." + $canvas.data("type") + "(data);";
+			eval(evalString);
+		});
+    </script>
+{% endblock %}

@@ -75,8 +75,11 @@
             <div class="span3">
                 <div class="well sidebar-nav">
                     <ul class="nav nav-list">
+                       <li><a href="/"><i class="icon-align-justify"></i>网站后台</a></li>
+                      {% if current_page %}
+                      <li class="active"><a href="#"><i class="icon-tag"></i>{{ current_page|e }}</a></li>
+                      {% endif %}
                       {% set navigation_bar = [
-                            ('/','admin_index','网站后台','align-justify'),
                             ('', '', '监控控制台',''),
                             ('/control', 'control', '监控控制台','cog'),
                             ('', '', '服务器相关',''),

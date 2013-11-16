@@ -53,12 +53,14 @@
         {% if locations %}
             {% for location in locations %}
                 <tr>
-                    <td>{{ location.location }}</td>
+                    <td><a href="/location/detail/{{ location._id }}/">{{ location.location }}</a></td>
                     <td>{{ location.description }}</td>
                     <td>{{ location.notes }}</td>
-                    <td><a href="/temp/{{ location._id }}/">温度</a>|
+                    <td>
+                        <a href="/temp/{{ location._id }}/">温度</a>|
                         <a href="/location/update/{{ location._id }}/">修改</a>|
-                        <a href="/location/delete/{{ location._id }}/">删除</a></td>
+                        <a href="/location/delete/{{ location._id }}/">删除</a>
+                    </td>
                 </tr>
             {% endfor %}
         {% endif %}

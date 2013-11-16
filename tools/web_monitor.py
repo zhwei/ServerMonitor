@@ -6,7 +6,6 @@ More information and apis about PyCurl in this link
 http://curl.haxx.se/libcurl/c/curl_easy_getinfo.html
 """
 
-import re
 import pycurl
 import chardet
 import requests

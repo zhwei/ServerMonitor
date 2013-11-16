@@ -7,7 +7,9 @@ import bcrypt
 from bson import ObjectId
 from pymongo import Connection
 
-con = Connection()
+from conf import MONGODB_HOST, MONGODB_PORT
+
+con = Connection(host=MONGODB_HOST,port=MONGODB_PORT)
 db = con.ServerMonitor
 
 

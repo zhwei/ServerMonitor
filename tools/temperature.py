@@ -5,7 +5,6 @@ __author__ = 'zhwei'
 
 import datetime
 
-from pymongo import Connection
 from serial import Serial
 
 from tools.db import db
@@ -29,8 +28,8 @@ def temperature():
             if c == "\r":
                 temp = ''.join(t[2:])
                 temp1 = {
-                    "name": "room_611",
-                    "description": "鸿远楼611室",
+                    "name": "server_room",
+                    "description": "鸿远楼机房",
                     "temp": float   (temp)/1000,
                     "datetime": datetime.datetime.now()
                 }
