@@ -71,7 +71,6 @@ class Proc:
                     if line.rstrip('\n').startswith('model name'):
                         model_name = line.rstrip('\n').split(':')[1]
                         model.append(model_name)
-
         return model
 
     def cpu_info(self):
@@ -267,8 +266,6 @@ class Proc:
 
 if __name__ == '__main__':
     server = SimpleXMLRPCServer.SimpleXMLRPCServer((IP, PORT))
-
     obj = Proc()
     server.register_instance(obj)
-    print "Listening on port %s" % PORT
     server.serve_forever()
