@@ -9,6 +9,7 @@ CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 # MongoDB 配置
 MONGODB_HOST = '127.0.0.1'
 MONGODB_PORT = 27017
+DB_NAME = 'ServerMonitor'
 
 # Session过期时间
 COOKIE_EXPIRES = 3000

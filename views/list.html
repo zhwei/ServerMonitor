@@ -6,7 +6,7 @@
 {% elif locations %}
     {% set ths = ['地点','描述','其他记录','操作'] %}
     {% set active_page = "location_list" %}
-{% elif webs %}
+{% elif webs is defined %}
     {% set ths=['网站','所在服务器','描述','实时状况'] %}
     {% set active_page = "web_list" %}
 {% elif users %}

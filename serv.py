@@ -107,8 +107,10 @@ def list(name):
     elif name == 'web':
         #webs = db.web.find()
         webs = [i for i in db.web.find()]
-        for i in webs:
-            i['server_name']=db.server.find_one({"_id":ObjectId(i['server_ID'])})['name']
+        #webs = db.web.find()
+        if len(webs) != 0:
+            for i in webs:
+                i['server_name']=db.server.find_one({"_id":ObjectId(i['server_ID'])})['name']
     elif name == 'user':
         users = db.user.find()
     else:
