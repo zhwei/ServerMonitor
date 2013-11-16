@@ -9,7 +9,7 @@ import time
 import platform
 import SimpleXMLRPCServer
 
-IP="127.0.0.1"
+IP="0.0.0.0"
 PORT=1234
 
 class Proc:

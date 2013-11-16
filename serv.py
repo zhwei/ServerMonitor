@@ -18,7 +18,7 @@ from beaker.middleware import SessionMiddleware
 
 from tools.db import find_one, check_code
 from conf import STATIC_DIR, COOKIE_EXPIRES
-from tools.toolbox import init_server, init_log, init_web, on_create_server
+from tools.toolbox import init_server, init_log, init_web, on_create_server, on_create_web
 from tools.db import create_user as db_create_user, db,\
     update_user as db_update_user, update_monitor_status
 
@@ -124,7 +124,7 @@ def init_info(item,oid):
         if item == "server":
             on_create_server(oid)
         elif item == "web":
-            init_web(oid)
+            on_create_web(oid)
     except SocketError:
         return index_error('无法连接，请检查网络或者配置是否正确。')
     except ConnectionError:
@@ -295,14 +295,18 @@ def create_web():
         _keywords = request.forms.get('keywords')
         _keys = [i.strip() for i in _keywords.split(',') if i.strip() is not '']
         _server_ID = request.forms.get('server')
+
+        date_now = datetime.datetime.now()
         web1 = {
             'name':_name,
             'url':_url,
             'description': _description,
             'keywords': _keys,
             'server_ID': _server_ID,
+            'datetime': date_now,
         }
         db.web.insert(web1)
+        init_info('web', db.web.find_one({'datetime':date_now})['_id'])
         redirect('/web/list')
 
     servers=[(s['_id'],s['name']) for s in db.server.find()]

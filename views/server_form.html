@@ -30,7 +30,7 @@
             <legend>修改服务器[{{ ser_instance.name }}]</legend>
             {% endif %}
             {{ form.input(name='name', label='服务器名', value=ser_instance.name) }}
-            {{ form.input(name='ip', label='IP:PORT', help_text="IP and PORT, eg: 127.0.0.1:8080.",
+            {{ form.input(name='ip', label='IP:PORT', help_text="<b class='text-info'>XMLRPCServer的IP和端口, eg: 127.0.0.1:8080.</b>",
                 value=ser_instance.ip|default('')) }}
             {{ form.textarea(name='description', label='描述', placeholder='必要信息',
                 value=ser_instance.description|default('')) }}

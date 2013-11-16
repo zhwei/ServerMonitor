@@ -25,7 +25,6 @@
             </div>
         {% endif %}
     </div>
-    {% if uptime %}
     <div class="row-fluid">
         <p><b>正常运行时间：</b></p>
         <h2><span class="text-success">{{ up_time.day }}</span>天
@@ -34,8 +33,6 @@
         <span class="text-error">{{ up_time.second }}</span>秒</h2>
         <br/>
     </div>
-    {% endif %}
-
 
     <div class="row-fluid">
         <div class="span4">
@@ -83,8 +80,6 @@
             <p>已用：<b class="text-warning">{{ disk_stat.used/10**8 }}</b>GB</p>
             <p>可用：<b class="text-info">{{ disk_stat.available/10**8 }}</b>GB</p>
         </div>
-        {% if last_time.partition %}
-
         <div class="span4">
             <h4>分区信息</h4>
             {% set partition=last_time.partition %}
@@ -105,10 +100,7 @@
             {% endfor %}
             </table>
         </div>
-        {% endif %}
-
     </div>
-
 
     <div class="row-fluid">
         <div class="span4">
