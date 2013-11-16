@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import time
+import datetime
 import threading
 from Queue import Queue
 
@@ -35,21 +36,32 @@ class MainThread(threading.Thread):
                 # 如果队列非空则清空队列
                 logger.error('queue not empty!')
                 queue.queue.clear()
+            try:
+                if db.control.find_one()['server_monitor']:
+                    for s in db.server.find():
+                        _task = ('server', s['_id'])
+                        with lock:
+                            queue.put(_task)
+                else:
+                    logger.info('server monitor stopped')
+                if db.control.find_one()['web_monitor']:
+                    for w in db.web.find():
+                        _task = ('web', w['_id'])
+                        with lock:
+                            queue.put(_task)
+                else:
+                    logger.info('web monitor stopped!')
+            except TypeError:
+                date_now = datetime.datetime.now()
+                db.control.insert({
+                    'web_monitor': True,
+                    'web_date': date_now,
+                    'server_monitor': True,
+                    'server_date': date_now,
+                    'temp_monitor': True,
+                    'temp_date': date_now,
+                })
 
-            if db.control.find_one()['server_monitor']:
-                for s in db.server.find():
-                    _task = ('server', s['_id'])
-                    with lock:
-                        queue.put(_task)
-            else:
-                logger.info('server monitor stopped')
-            if db.control.find_one()['web_monitor']:
-                for w in db.web.find():
-                    _task = ('web', w['_id'])
-                    with lock:
-                        queue.put(_task)
-            else:
-                logger.info('web monitor stopped!')
 
             daemon = DaemonThread()
             daemon.setDaemon(True)
