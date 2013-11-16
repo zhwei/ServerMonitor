@@ -3,6 +3,7 @@
 .idea/*
 env/*
 sessions/*
+log/*
 
 # C extensions
 *.so
