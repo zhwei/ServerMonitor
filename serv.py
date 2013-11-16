@@ -512,6 +512,12 @@ def control():
     now = datetime.datetime.now()
     return template('control', locals())
 
+
+@bottle.error(404)
+@bottle.error(500)
+def serv_error(error):
+    return 'wrong page'
+
 def dev_server():
     run(app=app,host='0.0.0.0', port=8080, debug=True)
 
