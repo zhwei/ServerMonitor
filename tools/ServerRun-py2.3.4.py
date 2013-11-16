@@ -172,8 +172,9 @@ class Proc:
         http://wangwei007.blog.51cto.com/68019/1047061
         """
         uptime = dict()
-        with open(self.proc_file['UP_TIME']) as fi:
-            con = fi.read().split()
+        fi = file(self.proc_file['UP_TIME'])
+        con = fi.read().split()
+        fi.close()
         all_sec = float(con[0])
         MINUTE,HOUR,DAY = 60,3600,86400
         uptime['day'] = int(all_sec / DAY )
@@ -223,7 +224,6 @@ class Proc:
         http://aspirer2004.blog.163.com/blog/static/106764720133160452041/
         """
         fi = file(self.proc_file['MOUNTS'], 'r')
-        #with open(self.proc_file['MOUNTS'], 'r') as f:
         mounts = fi.readlines()
         fi.close()
         result = dict()
