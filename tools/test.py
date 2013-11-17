@@ -4,12 +4,11 @@
 import xmlrpclib
 #
 ##server = xmlrpclib.ServerProxy("http://192.168.1.225:1234")
-server = xmlrpclib.ServerProxy("http://192.168.1.249:1234")
 ##
 print server.get_system()
 print server.get_node()
 print server.mem_info()
-print server.cpu_info()
+#print server.cpu_info()
 print server.cpu_usage()
 print server.disk_stat()
 print server.process_num()
