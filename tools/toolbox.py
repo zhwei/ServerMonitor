@@ -118,6 +118,12 @@ def create_server_status(oid):
                 'network': remote.network(),
                 'process_num': remote.process_num(),
             })
+        #try:
+        #    dic = dict(dic, **{
+        #        'disk_stat': remote.disk(),
+        #    })
+        #except xmlrpclib.Fault:
+        #    print('passsssssssss')
 
         set_server(oid, {'status_now': 0,}) # update "server
         set_server_status(dic)

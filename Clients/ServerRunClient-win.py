@@ -87,7 +87,7 @@ class WmiObj:
         """
         return 0
 
-    def desk_stat(self):
+    def disk_stat(self):
         """¥≈≈Ã–≈œ¢
         Out: {'caption': str, 'size': float}
         """
