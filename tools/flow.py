@@ -6,10 +6,13 @@ import datetime
 import threading
 from Queue import Queue
 
+from tools.conf import POLLING
+
 from tools.db import db
-from conf import POLLING
 from tools.toolbox import init_log
-from tools.toolbox import create_server_status, create_web_status
+from tools.webs import create_web_status
+from tools.servers import create_server_status
+
 
 lock = threading.RLock()
 queue = Queue()
@@ -19,7 +22,6 @@ logger = init_log(log_name='flow', level_name='info',fi=True)
 
 class MainThread(threading.Thread):
 
-    #def main_thread():
     def run(self):
 
         """
@@ -68,11 +70,9 @@ class MainThread(threading.Thread):
             logger.info( "wait...")
             time.sleep(POLLING)
 
-from toolbox import init_web, init_server
 
 class DaemonThread(threading.Thread):
 
-    #def daemon_thread():
     def run(self):
         """
         守护线程
@@ -91,7 +91,6 @@ class DaemonThread(threading.Thread):
                 print('server %s over'%oid)
             elif obj == 'web':
                 logger.info("This is web %s" % oid)
-                init_web(oid)
                 create_web_status(oid)
             else:
                 logger.error('obj wrong')

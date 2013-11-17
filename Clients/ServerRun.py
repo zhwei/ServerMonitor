@@ -219,7 +219,7 @@ class Proc:
         for mount in mounts:
             if mount.startswith('/dev/'):
                 dev, target = mount.split()[:2]
-                result[target]={
+                result[target.replace('.','-')]={
                     'dev': dev,
                     'total': self.__fs_size(target)[0],
                     'free': self.__fs_size(target)[1],

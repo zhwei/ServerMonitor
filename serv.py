@@ -9,24 +9,27 @@ import bottle
 from bottle import route, run, app, request, redirect, abort
 
 import datetime
-from pymongo import Connection
 from bson.objectid import ObjectId
 from socket import error as SocketError
 from bottle import jinja2_template as template
 from beaker.middleware import SessionMiddleware
 
+from tools.conf import STATIC_DIR, COOKIE_EXPIRES
 
-from tools.db import find_one, check_code
-from conf import STATIC_DIR, COOKIE_EXPIRES
-from tools.toolbox import init_server, init_log, init_web, on_create_server, on_create_web
-from tools.db import create_user as db_create_user, db,\
-    update_user as db_update_user, update_monitor_status
+from tools.toolbox import init_log
+from tools.webs import on_create_web
+from tools.servers import on_create_server
+from tools.db import db, update_monitor_status
+from tools.users import check_code, create_admin , update_admin
 
+# 初始化日志模块
 logger = init_log(log_name='bottle_server', level_name='info',fi=True)
 
 # 启动监控轮询线程
 from tools.flow import start as flow_start
 flow_start()
+
+
 
 # Session Config
 session_opts = {
@@ -366,7 +369,7 @@ def create_user():
         _user = request.forms.get("username")
         _pw = request.forms.get("password")
         _real = request.forms.get("real_name")
-        db_create_user(_user, _pw, _real)
+        create_admin(_user, _pw, _real)
         redirect('list')
     return template('user_form', locals())
 
@@ -381,7 +384,7 @@ def update_user(oid):
             user_instance = db.user.find_one({"_id": ObjectId(oid)})
             error='密码不能为空!'
             return template('user_form', locals())
-        db_update_user(oid, _user, _pw, _real)
+        update_admin(oid, _user, _pw, _real)
         redirect('../../list')
 
     user_instance = db.user.find_one({"_id": ObjectId(oid)})
@@ -414,17 +417,6 @@ def delete(item, oid):
         redirect('../../list')
     name = find_one(obj, oid)[main]
     return template('confirm_delete', name=name, oid=oid)
-
-#@route('/history')
-#def history():
-#    items = {'cpu':'CPU', 'mem':'内存',
-#             'load_1':'每一分钟负载',
-#             'load_5':'每五分钟负载',
-#             'load_15':'每十五分钟负载',
-#             'total':'网站访问总时间',
-#             'connect':'链接时间',
-#             'lookup':'域名解析时间',}
-#    return template('history')
 
 @route('/<item>/<oid>/<num>/<t>/')
 def history_items(item, oid, num,t=1):

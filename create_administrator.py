@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from tools.db import create_user
+from tools.users import create_user
 
 
 _user = raw_input('请输入管理员用户名：')
