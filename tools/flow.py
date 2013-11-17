@@ -61,13 +61,14 @@ class MainThread(threading.Thread):
                     'temp_monitor': True,
                     'temp_date': date_now,
                 })
-
-
             daemon = DaemonThread()
+            daemon.name= 'daemon thread ' + str(datetime.datetime.now())
             daemon.setDaemon(True)
             daemon.start()
             logger.info( "wait...")
             time.sleep(POLLING)
+
+from toolbox import init_web, init_server
 
 class DaemonThread(threading.Thread):
 
@@ -84,10 +85,13 @@ class DaemonThread(threading.Thread):
             obj, oid = queue.get()
 
             if obj == 'server':
+                print("this is server %s" % oid)
                 logger.info("this is server %s" % oid)
                 create_server_status(oid)
+                print('server %s over'%oid)
             elif obj == 'web':
                 logger.info("This is web %s" % oid)
+                init_web(oid)
                 create_web_status(oid)
             else:
                 logger.error('obj wrong')

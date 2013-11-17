@@ -96,10 +96,18 @@ def create_server_status(oid):
     in the daemon thread
     """
     try:
-        o = db.server.find_one({'_id':ObjectId(oid)})
-        oip = o['ip']
-        o_system=o['system']
+        oip = db.server.find_one({'_id':ObjectId(oid)})['ip']
         remote = connect(oip)
+        system = remote.get_system()
+        db.server.update({'_id':ObjectId(oid)},
+                      {'$set':
+                           dict(
+                                node = remote.get_node(),
+                                uname = remote.get_uname(),
+                                cpu_info = remote.cpu_info(),
+                                system = system,
+                            )
+                      })
         dic = {
             'server_ID': oid,
             'load_avg': remote.load_avg(),
@@ -111,7 +119,7 @@ def create_server_status(oid):
             'partition': remote.partition(),
             'datetime': datetime.datetime.now(),
             }
-        if o_system == "Windows":
+        if system == "Windows":
             dic = dict(dic, **{
                 'machine': remote.get_machine(),
                 'set_up':remote.set_up(),
@@ -161,13 +169,31 @@ def create_web_status(oid):
     except SocketError:
         set_web(oid, {'status_now': 1,})
 
+from flow import queue, lock, DaemonThread
 
 def on_create_server(oid):
     """ when create server
     """
-    init_server(oid)
-    create_server_status(oid)
+    global queue
+    _task = ('server', oid)
+    with lock:
+        queue.put(_task)
+    #init_server(oid)
+    #create_server_status(oid)
+    print('succ put into queue')
+    daemon = DaemonThread()
+    daemon.name = 'on_create_server'+ str(datetime.datetime.now())
+    daemon.setDaemon(True)
+    daemon.start()
 
 def on_create_web(oid):
-    init_web(oid)
-    create_web_status(oid)
+
+    global queue
+    #init_web(oid)
+    #create_web_status(oid)
+    _task = ('web', oid)
+    with lock:
+        queue.put(_task)
+    daemon = DaemonThread()
+    daemon.setDaemon(True)
+    daemon.start()
