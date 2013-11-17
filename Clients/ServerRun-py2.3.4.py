@@ -281,4 +281,5 @@ if __name__ == '__main__':
     server = SimpleXMLRPCServer.SimpleXMLRPCServer((IP, PORT))
     obj = Proc()
     server.register_instance(obj)
+    print('rpc service start..')
     server.serve_forever()
