@@ -2,6 +2,8 @@
 
 机房相关监控
 
+http://zhangweide.cn/post/151.html
+
 *项目暂停中*
 
 ## 功能简述
